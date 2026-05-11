@@ -62,58 +62,58 @@
 
 #### Migrations (15 مهمة)
 
-- [ ] **T-041** — Migration: `users` (id, role, email, password, full_name, phone, status, 2fa_secret, failed_attempts, timestamps, soft_deletes).
-- [ ] **T-042** — Migration: `agents` (id, user_id, external_agent_id, business_name, license_number, country, city, current_tier, tier_valid_until, account_manager_id, pending_amount).
-- [ ] **T-043** — Migration: `agent_levels` (tier_name, min_packages_monthly, points_per_package, amount_per_point, benefits JSON).
-- [ ] **T-044** — Migration: `transactions` (id, agent_id, reference_id UNIQUE, transaction_type, amount_usd, destination, points_awarded, config_snapshot JSON, transaction_date).
-- [ ] **T-045** — Migration: `cash_wallet_points` (agent_id UNIQUE, available_points, locked_points, lifetime_earned, lifetime_redeemed).
-- [ ] **T-046** — Migration: `package_wallet_points` (نفس الهيكل).
-- [ ] **T-047** — Migration: `points_history` (agent_id, wallet_type, transaction_id, redemption_id, points_delta, balance_after, source, description, config_snapshot, created_by).
-- [ ] **T-048** — Migration: `redemption_requests` (agent_id, type, points, cash_value_usd, package_id, status, rejection_reason, requested_at, processed_at, processed_by, fulfilled_at).
-- [ ] **T-049** — Migration: `tier_history` (agent_id, from_tier, to_tier, action, packages_at_time, valid_until, triggered_by, admin_id).
-- [ ] **T-050** — Migration: `free_packages` (name, destination, points_required, duration_days, description, image_url, valid_until, is_active).
-- [ ] **T-051** — Migration: `system_settings` (key PK, value, value_type, description, updated_by).
-- [ ] **T-052** — Migration: `audit_logs` (user_id, action, entity_type, entity_id, old_values JSON, new_values JSON, ip_address, user_agent).
-- [ ] **T-053** — Migration: `api_logs` (method, endpoint, request/response, api_key_used, ip_address, duration_ms, reference_id, status).
-- [ ] **T-054** — Migration: `notifications` (user_id, type, data JSON, is_read, read_at).
-- [ ] **T-055** — Migration: `messages` (sender_id, receiver_id, body, is_read).
-- [ ] **T-056** — Migration: `user_notification_preferences` (user_id, notification_type, email_enabled, sms_enabled, in_app_enabled).
-- [ ] **T-057** — Migration: `pending_adjustments` (agent_id, wallet_type, points_delta, reason, requested_by, status, approved_by).
+- [x] **T-041** — Migration: `users` (+ `password_reset_tokens`) — role, status, 2FA, lockout, soft-deletes. ✅
+- [x] **T-042** — Migration: `agents` (FK user/AM + internal_notes + pending_amount). ✅
+- [x] **T-043** — Migration: `agent_levels` (4 tiers + benefits JSON). ✅
+- [x] **T-044** — Migration: `transactions` (+ `pending_transactions` for suspended agents). ✅
+- [x] **T-045** — Migration: `cash_wallet_points`. ✅
+- [x] **T-046** — Migration: `package_wallet_points`. ✅
+- [x] **T-047** — Migration: `points_history` (مع source enum موسّع: refunds/reversals). ✅
+- [x] **T-048** — Migration: `redemption_requests`. ✅
+- [x] **T-049** — Migration: `tier_history`. ✅
+- [x] **T-050** — Migration: `free_packages`. ✅
+- [x] **T-051** — Migration: `system_settings` (+ category + is_public). ✅
+- [x] **T-052** — Migration: `audit_logs`. ✅
+- [x] **T-053** — Migration: `api_logs` (+ rate_limited status). ✅
+- [x] **T-054** — Migration: `notifications` (custom — مع title/body/action_url). ✅
+- [x] **T-055** — Migration: `messages` (مع parent_id للـ threads). ✅
+- [x] **T-056** — Migration: `user_notification_preferences`. ✅
+- [x] **T-057** — Migration: `pending_adjustments`. ✅
 
 #### Models (10 مهام)
 
-- [ ] **T-058** — Model `User` + علاقات: `agent()`, `auditLogs()`, `notifications()`.
-- [ ] **T-059** — Model `Agent` + علاقات: `user()`, `accountManager()`, `cashWallet()`, `packageWallet()`, `transactions()`, `redemptions()`, `tierHistory()`.
-- [ ] **T-060** — Model `AgentLevel` (enum cast لـ tier_name، JSON cast لـ benefits).
-- [ ] **T-061** — Model `Transaction` + علاقات + cast لـ config_snapshot JSON.
-- [ ] **T-062** — Models `CashWalletPoints` + `PackageWalletPoints` (مفهوم Trait مشترك إن لزم).
-- [ ] **T-063** — Model `PointsHistory` + علاقات.
-- [ ] **T-064** — Model `RedemptionRequest` + status enum.
-- [ ] **T-065** — Model `TierHistory` + علاقات.
-- [ ] **T-066** — Model `SystemSetting` (مع value_type casting).
-- [ ] **T-067** — Models `AuditLog`, `ApiLog`, `FreePackage`, `Notification`, `Message`, `UserNotificationPreference`, `PendingAdjustment`.
+- [x] **T-058** — `User` + علاقات (agent, managedAgents, auditLogs, notifications, messages) + role helpers (isAdmin/isAgent/...). ✅
+- [x] **T-059** — `Agent` + كل العلاقات (user, accountManager, cashWallet, packageWallet, transactions, redemptions, tierHistory, pendingAdjustments, tierLevel). ✅
+- [x] **T-060** — `AgentLevel` (JSON cast لـ benefits + helper `forTier()`). ✅
+- [x] **T-061** — `Transaction` + علاقات + JSON cast للـ config_snapshot. ✅
+- [x] **T-062** — `CashWalletPoints` + `PackageWalletPoints` (مع helper `totalPoints()`). ✅
+- [x] **T-063** — `PointsHistory` + علاقات + JSON cast. ✅
+- [x] **T-064** — `RedemptionRequest` + helpers (isPending, isApproved). ✅
+- [x] **T-065** — `TierHistory` + علاقات. ✅
+- [x] **T-066** — `SystemSetting` (custom primary key + `typedValue()` helper). ✅
+- [x] **T-067** — `AuditLog`, `ApiLog`, `FreePackage` (مع scope active), `Notification` (مع markAsRead), `Message` (مع threading), `UserNotificationPreference`, `PendingAdjustment`, `PendingTransaction`. ✅
 
 #### Seeders & Factories (5 مهام)
 
-- [ ] **T-068** — `AgentLevelsSeeder` (Bronze/Silver/Gold/Diamond بالقيم الافتراضية من SRS).
-- [ ] **T-069** — `SystemSettingsSeeder` (calculation_method, point_value_usd, min_redemption_points, إلخ).
-- [ ] **T-070** — `AdminUserSeeder` (Super Admin + Admin افتراضي).
-- [ ] **T-071** — `FreePackagesSeeder` (Thailand 1000، Vietnam 1000، Russia 5000).
-- [ ] **T-072** — Factories لـ Agent، Transaction، PointsHistory (للاختبارات).
+- [x] **T-068** — `AgentLevelsSeeder` (4 تصنيفات بالقيم الافتراضية + benefits JSON مفصّلة). ✅
+- [x] **T-069** — `SystemSettingsSeeder` (13 إعداد عبر 7 categories: points/redemption/tier/webhook/auth...). ✅
+- [x] **T-070** — `AdminUserSeeder` (super_admin + admin افتراضيين بكلمة مرور بدّلها فوراً). ✅
+- [x] **T-071** — `FreePackagesSeeder` (Thailand 1000، Vietnam 1000، Russia 5000). ✅
+- [ ] **T-072** — Factories لـ Agent، Transaction، PointsHistory (مؤجل لـ Sprint 1.2 مع الـ tests).
 
 #### Auth System (10 مهام)
 
-- [ ] **T-073** — `AuthService` class: `login()`, `logout()`, `resetPassword()`, `verify2FA()`.
-- [ ] **T-074** — `LoginController` + `resources/views/auth/login.blade.php`.
-- [ ] **T-075** — `LoginRequest` FormRequest للـ validation.
-- [ ] **T-076** — استخدام Laravel's session driver (file افتراضياً).
-- [ ] **T-077** — Logout endpoint + إبطال الـ session.
-- [ ] **T-078** — `PasswordResetController` + 3 صفحات: forgot, reset, success.
-- [ ] **T-079** — Mailable: `PasswordResetMail` بقالب RTL.
-- [ ] **T-080** — Rate Limiting على `/login` (5 محاولات / 15 دقيقة).
-- [ ] **T-081** — تثبيت + تهيئة `josiasmontag/laravel-recaptchav3`.
-- [ ] **T-082** — 2FA: تثبيت `pragmarx/google2fa-laravel` + إعداد للأدمن فقط.
-- [ ] **T-083** — `AuditService::logAuth()` + استدعاؤه عند login/logout/failed.
+- [x] **T-073** — `AuthService` (attemptLogin مع lockout + DB-driven settings، logout، sendPasswordResetLink، resetPassword). ✅
+- [x] **T-074** — `LoginController` (show/store/destroy + route-by-role) + `auth/login.blade.php` RTL. ✅
+- [x] **T-075** — `LoginRequest` FormRequest مع validation عربي. ✅
+- [x] **T-076** — Session driver: file (default Laravel). ✅
+- [x] **T-077** — Logout يبطّل الـ session + يجدّد CSRF token. ✅
+- [x] **T-078** — `PasswordResetController` + 3 صفحات (forgot، reset). ✅
+- [ ] **T-079** — `PasswordResetMail` RTL → مؤجل لـ Sprint 2.3 (مع كل الـ mailables). يستخدم Laravel's default الآن.
+- [x] **T-080** — Rate Limiting بـ Laravel throttle middleware (5/15min on login، 3/15min on forgot). ✅
+- [ ] **T-081** — reCAPTCHA → مؤجل (يحتاج Keys حقيقية). الـ rate limit يحمي حالياً.
+- [ ] **T-082** — 2FA → مؤجل لـ Sprint 3.1 (مع admin panel، لأنه إجباري للأدمن فقط). DB columns جاهزة (`two_factor_secret`, `two_factor_enabled`).
+- [x] **T-083** — `AuditService::logAuth()` يسجّل: login_success, login_failed, login_blocked, account_locked, logout, password_reset_requested, password_reset_completed. ✅
 
 ### Sprint 1.2: Webhook & Points Engine — أسبوع
 
