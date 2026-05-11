@@ -7,10 +7,11 @@
 
 <header class="sticky top-0 z-20 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-3 bg-white border-b border-[var(--color-surface-border)] shadow-[var(--shadow-card)]">
 
-    {{-- Mobile hamburger (opens sidebar) --}}
+    {{-- Mobile hamburger (opens sidebar via plain DOM CustomEvent so we don't
+         depend on being inside an Alpine x-data scope) --}}
     <button
         type="button"
-        @click="$dispatch('open-sidebar')"
+        onclick="window.dispatchEvent(new CustomEvent('open-sidebar'))"
         class="md:hidden w-10 h-10 rounded-full hover:bg-[var(--color-surface-secondary)] flex items-center justify-center transition-base flex-shrink-0"
         aria-label="فتح القائمة"
     >
