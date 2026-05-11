@@ -6,7 +6,7 @@
     'loading'     => false,       // initial loading state (SSR)
     'disabled'    => false,
     'full'        => false,       // w-full
-    'autoLoading' => true,        // ★ افتراضياً: يفعّل loading تلقائياً عند click/submit
+    'autoLoading' => true,        // ★ افتراضياً: يفعّل loading تلقائياً
     'loadingText' => 'جاري التحميل…',
 ])
 
@@ -35,21 +35,25 @@
 
     $initialLoading  = $loading ? 'true' : 'false';
     $initialDisabled = $disabled ? 'true' : 'false';
-    $autoLoadEnabled = $autoLoading ? 'true' : 'false';
+    $autoForm        = $autoLoading && $type === 'submit';
+    $autoClick       = $autoLoading && $type !== 'submit';
 @endphp
 
 {{--
     ============================================
     Smart-loading Button
     --------------------------------------------
-    Default behavior (autoLoading=true):
-      • type=submit  → loading=true تلقائياً عند submit الفورم (بعد ما يمر validation الـ HTML5)
-      • <a> link     → loading=true تلقائياً عند click + يمنع double-click
-      • Manual       → استدعِ من خارج: $dispatch('button-loading', {target: 'myBtnId', state: true})
-                       أو wrap الزر بـ x-ref واستخدم: $refs.myBtn.dispatchEvent(new CustomEvent('set-loading', {detail: true}))
+    autoLoading=true (default):
+      • type=submit  → intercepts form submit, sets loading=true, waits 2
+                       animation frames so the spinner paints, THEN re-submits
+                       the form programmatically (browser-native validation
+                       still runs because submit event only fires after it).
+      • <a> link     → sets loading=true on click + blocks double-click.
+      • other        → sets loading=true on click (caller usually resets it
+                       via $dispatch('set-loading', false)).
 
-    عند autoLoading=false:
-      • يعمل كزر عادي (يدوي بحت). استخدم :loading="$state" من PHP لو محتاج SSR.
+    Reset loading from outside (AJAX flows):
+      $el.dispatchEvent(new CustomEvent('set-loading', { detail: false }))
     ============================================
 --}}
 
@@ -57,35 +61,23 @@
     {{-- ============== Link variant ============== --}}
     <a
         href="{{ $href }}"
-        x-data="{
-            loading: {{ $initialLoading }},
-            disabled: {{ $initialDisabled }},
-            click(e) {
-                if (this.loading || this.disabled) {
-                    e.preventDefault();
-                    return;
-                }
-                {{ $autoLoadEnabled }} && (this.loading = true);
-            }
-        }"
-        x-on:click="click($event)"
+        x-data="{ loading: {{ $initialLoading }}, disabled: {{ $initialDisabled }} }"
+        x-on:click="
+            if (loading || disabled) { $event.preventDefault(); return; }
+            {{ $autoLoading ? 'loading = true;' : '' }}
+        "
         x-on:set-loading.stop="loading = $event.detail"
         :class="(loading || disabled) ? 'opacity-75 cursor-wait pointer-events-none' : ''"
         :aria-busy="loading"
         {{ $attributes->merge(['class' => $classes]) }}
     >
-        {{-- Spinner (visible when loading) --}}
         <svg x-show="loading" x-cloak
              class="animate-spin h-4 w-4 flex-shrink-0"
              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
         </svg>
-
-        {{-- Loading label --}}
         <span x-show="loading" x-cloak>{{ $loadingText }}</span>
-
-        {{-- Default content --}}
         <span x-show="!loading">{{ $slot }}</span>
     </a>
 
@@ -93,49 +85,47 @@
     {{-- ============== Button variant ============== --}}
     <button
         type="{{ $type }}"
-        x-data="{
-            loading: {{ $initialLoading }},
-            disabled: {{ $initialDisabled }},
-            click(e) {
-                if (this.loading || this.disabled) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    return;
-                }
-                // Non-submit buttons: enable loading on click
-                if (e.target.type !== 'submit' && {{ $autoLoadEnabled }}) {
-                    this.loading = true;
-                }
-            }
-        }"
+        x-data="{ loading: {{ $initialLoading }}, disabled: {{ $initialDisabled }} }"
+        @if($autoForm)
         x-init="
-            // Submit button: listen to form's submit event so we only flip after validation passes.
-            if ({{ $autoLoadEnabled }} && $el.type === 'submit') {
-                const form = $el.closest('form');
-                if (form) {
-                    form.addEventListener('submit', () => { loading = true; });
-                }
+            const form = $el.closest('form');
+            if (form) {
+                let submitting = false;
+                form.addEventListener('submit', (e) => {
+                    if (submitting) return;
+                    submitting = true;
+                    e.preventDefault();
+                    loading = true;
+                    // wait two animation frames so the spinner actually paints
+                    // before the browser navigates away.
+                    requestAnimationFrame(() =>
+                        requestAnimationFrame(() => form.submit())
+                    );
+                });
             }
         "
-        x-on:click="click($event)"
+        @endif
+        x-on:click="
+            if (loading || disabled) {
+                $event.preventDefault();
+                $event.stopImmediatePropagation();
+                return;
+            }
+            {{ $autoClick ? 'loading = true;' : '' }}
+        "
         x-on:set-loading.stop="loading = $event.detail"
         :disabled="loading || disabled"
         :class="loading ? 'cursor-wait' : ''"
         :aria-busy="loading"
         {{ $attributes->merge(['class' => $classes]) }}
     >
-        {{-- Spinner (visible when loading) --}}
         <svg x-show="loading" x-cloak
              class="animate-spin h-4 w-4 flex-shrink-0"
              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
         </svg>
-
-        {{-- Loading label --}}
         <span x-show="loading" x-cloak>{{ $loadingText }}</span>
-
-        {{-- Default content --}}
         <span x-show="!loading">{{ $slot }}</span>
     </button>
 @endif

@@ -14,16 +14,16 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->group(function () {
-    // Login
+    // Login (throttle: 20/min/IP + 10/min/email — defined in AppServiceProvider)
     Route::get('/login',  [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])
-        ->middleware('throttle:5,15') // 5 attempts per 15 minutes
+        ->middleware('throttle:login')
         ->name('login.store');
 
-    // Forgot / Reset password
+    // Forgot / Reset password (throttle: 5/min/IP)
     Route::get('/forgot-password',  [PasswordResetController::class, 'showLinkRequest'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendLink'])
-        ->middleware('throttle:3,15')
+        ->middleware('throttle:password-reset')
         ->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
     Route::post('/reset-password',          [PasswordResetController::class, 'update'])->name('password.update');
