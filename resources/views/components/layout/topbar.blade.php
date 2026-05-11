@@ -1,16 +1,28 @@
 @props([
-    'pageTitle' => '',
-    'breadcrumbs' => [], // [['label' => 'الرئيسية', 'href' => '/'], ['label' => 'الوكلاء']]
-    'user' => null,      // ['name' => '...', 'email' => '...', 'avatar' => null]
+    'pageTitle'          => '',
+    'breadcrumbs'        => [],
+    'user'               => null,
     'notificationsCount' => 0,
 ])
 
-<header class="flex items-center justify-between gap-4 px-6 py-3 bg-white border-b border-[var(--color-surface-border)] shadow-[var(--shadow-card)]">
+<header class="sticky top-0 z-20 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-3 bg-white border-b border-[var(--color-surface-border)] shadow-[var(--shadow-card)]">
+
+    {{-- Mobile hamburger (opens sidebar) --}}
+    <button
+        type="button"
+        @click="$dispatch('open-sidebar')"
+        class="md:hidden w-10 h-10 rounded-full hover:bg-[var(--color-surface-secondary)] flex items-center justify-center transition-base flex-shrink-0"
+        aria-label="فتح القائمة"
+    >
+        <svg class="h-5 w-5 text-[var(--color-text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
 
     {{-- Page title + breadcrumbs --}}
     <div class="min-w-0 flex-1">
         @if(!empty($breadcrumbs))
-            <nav class="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] mb-1" aria-label="مسار التنقل">
+            <nav class="hidden sm:flex items-center gap-2 text-xs text-[var(--color-text-secondary)] mb-1" aria-label="مسار التنقل">
                 @foreach($breadcrumbs as $i => $crumb)
                     @if(!empty($crumb['href']))
                         <a href="{{ $crumb['href'] }}" class="hover:text-[var(--color-primary-500)] transition-base">{{ $crumb['label'] }}</a>
@@ -24,12 +36,12 @@
             </nav>
         @endif
         @if($pageTitle)
-            <h1 class="text-xl font-bold text-[var(--color-text-primary)] truncate">{{ $pageTitle }}</h1>
+            <h1 class="text-base sm:text-xl font-bold text-[var(--color-text-primary)] truncate">{{ $pageTitle }}</h1>
         @endif
     </div>
 
-    {{-- Actions: search, notifications, user --}}
-    <div class="flex items-center gap-3 flex-shrink-0">
+    {{-- Actions --}}
+    <div class="flex items-center gap-1 sm:gap-3 flex-shrink-0">
 
         {{-- Notifications dropdown --}}
         <div x-data="{ open: false }" class="relative">
@@ -53,7 +65,7 @@
                 x-cloak
                 x-on:click.outside="open = false"
                 x-transition
-                class="absolute end-0 mt-2 w-80 bg-white rounded-[var(--radius-md)] shadow-[var(--shadow-dropdown)] border border-[var(--color-surface-border)] z-50"
+                class="absolute end-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white rounded-[var(--radius-md)] shadow-[var(--shadow-dropdown)] border border-[var(--color-surface-border)] z-50"
             >
                 <div class="px-4 py-3 border-b border-[var(--color-surface-divider)] flex items-center justify-between">
                     <h3 class="font-semibold">الإشعارات</h3>
@@ -77,14 +89,14 @@
                     x-on:click="open = !open"
                     class="flex items-center gap-2 px-2 py-1 rounded-[var(--radius-md)] hover:bg-[var(--color-surface-secondary)] transition-base"
                 >
-                    <div class="w-8 h-8 rounded-full bg-[var(--color-primary-500)] text-white flex items-center justify-center text-sm font-semibold">
+                    <div class="w-8 h-8 rounded-full bg-[var(--color-primary-500)] text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
                         {{ mb_substr($user['name'] ?? 'U', 0, 1) }}
                     </div>
-                    <div class="hidden md:block text-right">
-                        <p class="text-sm font-semibold text-[var(--color-text-primary)] leading-tight">{{ $user['name'] ?? '' }}</p>
-                        <p class="text-xs text-[var(--color-text-secondary)] leading-tight">{{ $user['email'] ?? '' }}</p>
+                    <div class="hidden lg:block text-right min-w-0 max-w-[140px]">
+                        <p class="text-sm font-semibold text-[var(--color-text-primary)] leading-tight truncate">{{ $user['name'] ?? '' }}</p>
+                        <p class="text-xs text-[var(--color-text-secondary)] leading-tight truncate">{{ $user['email'] ?? '' }}</p>
                     </div>
-                    <svg class="h-4 w-4 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="hidden lg:block h-4 w-4 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
@@ -94,8 +106,13 @@
                     x-cloak
                     x-on:click.outside="open = false"
                     x-transition
-                    class="absolute end-0 mt-2 w-48 bg-white rounded-[var(--radius-md)] shadow-[var(--shadow-dropdown)] border border-[var(--color-surface-border)] z-50 py-1"
+                    class="absolute end-0 mt-2 w-56 bg-white rounded-[var(--radius-md)] shadow-[var(--shadow-dropdown)] border border-[var(--color-surface-border)] z-50 py-1"
                 >
+                    {{-- User info on mobile (when not shown in button) --}}
+                    <div class="lg:hidden px-4 py-2 border-b border-[var(--color-surface-divider)]">
+                        <p class="text-sm font-semibold text-[var(--color-text-primary)] truncate">{{ $user['name'] ?? '' }}</p>
+                        <p class="text-xs text-[var(--color-text-secondary)] truncate">{{ $user['email'] ?? '' }}</p>
+                    </div>
                     {{ $userMenu ?? '' }}
                 </div>
             </div>

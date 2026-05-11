@@ -46,8 +46,8 @@
     {{-- Balance --}}
     <div class="mb-4">
         <p class="text-xs text-[var(--color-text-secondary)] mb-1">الرصيد المتاح</p>
-        <div class="flex items-baseline gap-2">
-            <span class="text-4xl font-bold text-[var(--color-text-primary)]" dir="ltr">{{ number_format($available) }}</span>
+        <div class="flex items-baseline gap-2 flex-wrap">
+            <span class="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]" dir="ltr">{{ number_format($available) }}</span>
             <span class="text-sm text-[var(--color-text-secondary)]">نقطة</span>
         </div>
 

@@ -16,16 +16,16 @@
          style="background: linear-gradient(135deg, {{ $tier['current_color'] ?? '#A16207' }} 0%, transparent 60%);"></div>
 
     <div class="relative z-10">
-        <div class="flex items-start justify-between gap-4 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4">
             <div>
                 <p class="text-xs text-[var(--color-text-secondary)] mb-1">تصنيفك الحالي</p>
                 <x-ui.tier-badge :tier="$tierName" size="lg" />
             </div>
 
             {{-- Countdown --}}
-            <div class="text-end">
+            <div class="sm:text-end">
                 <p class="text-xs text-[var(--color-text-secondary)]">إعادة التقييم خلال</p>
-                <p class="text-2xl font-bold text-[var(--color-text-primary)]" dir="ltr">
+                <p class="text-xl sm:text-2xl font-bold text-[var(--color-text-primary)]" dir="ltr">
                     {{ $tier['days_until_reeval'] ?? 30 }}
                     <span class="text-sm font-normal text-[var(--color-text-secondary)]">يوم</span>
                 </p>

@@ -37,7 +37,6 @@
             subtitle="لوحة الإدارة"
             :items="$navItems"
             :currentRoute="$currentRoute"
-            class="hidden md:flex sticky top-0 h-screen"
         >
             <x-slot:footer>
                 <div class="text-center">
@@ -63,7 +62,7 @@
                 </x-slot:userMenu>
             </x-layout.topbar>
 
-            <main class="flex-1 px-6 py-6">
+            <main class="flex-1 px-3 sm:px-6 py-4 sm:py-6">
                 @if(session('status'))
                     <x-ui.alert variant="success" :dismissible="true" class="mb-4">
                         {{ session('status') }}

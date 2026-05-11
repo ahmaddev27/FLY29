@@ -33,13 +33,12 @@
 <x-layouts.app :title="$title ?? $pageTitle">
     <div class="flex min-h-screen bg-[var(--color-surface-secondary)]">
 
-        {{-- Sidebar --}}
+        {{-- Sidebar (responsive: drawer on mobile, sticky on desktop) --}}
         <x-layout.sidebar
             brand="29FLY Loyalty"
             subtitle="بوابة الوكلاء"
             :items="$navItems"
             :currentRoute="$currentRoute"
-            class="hidden md:flex sticky top-0 h-screen"
         >
             <x-slot:footer>
                 @if($agent)
@@ -82,7 +81,7 @@
             </x-layout.topbar>
 
             {{-- Page content --}}
-            <main class="flex-1 px-6 py-6">
+            <main class="flex-1 px-3 sm:px-6 py-4 sm:py-6">
                 {{-- Flash messages --}}
                 @if(session('status'))
                     <x-ui.alert variant="success" :dismissible="true" class="mb-4">

@@ -34,11 +34,11 @@
     ];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-[var(--radius-md)] border border-[var(--color-surface-border)] p-5 shadow-[var(--shadow-card)]']) }}>
-    <div class="flex items-start justify-between gap-3">
+<div {{ $attributes->merge(['class' => 'bg-white rounded-[var(--radius-md)] border border-[var(--color-surface-border)] p-3 sm:p-5 shadow-[var(--shadow-card)]']) }}>
+    <div class="flex items-start justify-between gap-2 sm:gap-3">
         <div class="flex-1 min-w-0">
-            <p class="text-sm text-[var(--color-text-secondary)] mb-1">{{ $label }}</p>
-            <p class="text-2xl font-bold text-[var(--color-text-primary)]">{{ $value }}</p>
+            <p class="text-xs sm:text-sm text-[var(--color-text-secondary)] mb-1 truncate">{{ $label }}</p>
+            <p class="text-lg sm:text-2xl font-bold text-[var(--color-text-primary)] truncate">{{ $value }}</p>
 
             @if($trend && $trendValue)
                 <div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $trendColors[$trend] ?? '' }}">
@@ -52,7 +52,7 @@
 
         @if($icon)
             <div
-                class="flex-shrink-0 w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center"
+                class="hidden sm:flex flex-shrink-0 w-12 h-12 rounded-[var(--radius-md)] items-center justify-center"
                 style="background-color: {{ $c['bg'] }}; color: {{ $c['fg'] }};"
             >
                 {{ $icon }}
