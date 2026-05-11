@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* ============================================
+   29FLY Loyalty - Design System Tokens
+   Inspired by fly29.net
+   ============================================ */
+@theme {
+    /* ---- Brand Colors ---- */
+    --color-primary-50:  #EFF6FF;
+    --color-primary-100: #DBEAFE;
+    --color-primary-200: #BFDBFE;
+    --color-primary-300: #93C5FD;
+    --color-primary-400: #60A5FA;
+    --color-primary-500: #0066CC; /* primary fly29 blue */
+    --color-primary-600: #0052A3;
+    --color-primary-700: #003D7A;
+    --color-primary-800: #002952;
+    --color-primary-900: #001429;
+
+    /* CTA (green/teal) */
+    --color-cta-500: #10B981;
+    --color-cta-600: #059669;
+    --color-cta-700: #047857;
+
+    /* Accent (orange / featured) */
+    --color-accent-500: #F59E0B;
+    --color-accent-600: #D97706;
+
+    /* Tier Colors */
+    --color-tier-diamond: #3B82F6;
+    --color-tier-gold:    #F59E0B;
+    --color-tier-silver:  #94A3B8;
+    --color-tier-bronze:  #A16207;
+
+    /* Surface */
+    --color-surface:           #FFFFFF;
+    --color-surface-secondary: #F5F5F5;
+    --color-surface-border:    #E5E7EB;
+
+    /* Text */
+    --color-text-primary:   #222222;
+    --color-text-secondary: #666666;
+    --color-text-muted:     #9CA3AF;
+
+    /* ---- Typography ---- */
+    --font-sans: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif;
+    --font-latin: 'Inter', system-ui, sans-serif;
+
+    /* ---- Radii ---- */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* ---- Shadows ---- */
+    --shadow-card:  0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-modal: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   Base styles for RTL Arabic
+   ============================================ */
+html {
+    font-family: var(--font-sans);
+}
+
+body {
+    background-color: var(--color-surface-secondary);
+    color: var(--color-text-primary);
+    direction: rtl;
+    text-align: right;
+}
+
+/* Improved readability */
+.font-latin { font-family: var(--font-latin); }
+.font-arabic { font-family: var(--font-sans); }
