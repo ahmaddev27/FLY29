@@ -40,11 +40,16 @@ Route::middleware('guest')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated — shared (logout)
+| Authenticated — shared (logout + firebase token)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+    // Mint a Firebase custom token for the current user (used by the Web SDK
+    // to sign in and read its own Firestore collections in real time).
+    Route::post('/firebase/auth-token', [\App\Http\Controllers\Api\V1\FirebaseAuthController::class, 'token'])
+        ->name('firebase.auth-token');
 });
 
 /*

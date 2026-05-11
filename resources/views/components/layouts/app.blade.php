@@ -23,7 +23,7 @@
 
     @stack('head')
 </head>
-<body class="antialiased min-h-screen">
+<body class="antialiased min-h-screen" @auth data-authenticated="1" @endauth>
 
     {{ $slot }}
 

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Agent\DashboardController;
-use App\Http\Controllers\Agent\NotificationController;
 use App\Http\Controllers\Agent\NotificationPreferencesController;
 use App\Http\Controllers\Agent\PackageController;
 use App\Http\Controllers\Agent\ProfileController;
@@ -38,16 +37,6 @@ Route::middleware(['auth', 'agent'])
             Route::get('/notification-preferences', 'show')->name('notification-preferences');
             Route::put('/notification-preferences', 'update')->name('notification-preferences.update');
         });
-
-        // In-app notifications (AJAX)
-        Route::controller(NotificationController::class)
-            ->prefix('notifications')
-            ->name('notifications.')
-            ->group(function () {
-                Route::get('/',                        'index')->name('index');
-                Route::patch('/{notification}/read',   'markAsRead')->name('read');
-                Route::patch('/read-all',              'markAllAsRead')->name('read-all');
-            });
 
         // Cash redemption + my requests
         Route::controller(RedemptionController::class)

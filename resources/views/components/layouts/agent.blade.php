@@ -58,7 +58,6 @@
                 :page-title="$pageTitle"
                 :breadcrumbs="$breadcrumbs"
                 :user="['name' => $user->full_name ?? '', 'email' => $user->email ?? '']"
-                :notifications-count="$user?->notifications()->unread()->count() ?? 0"
             >
                 <x-slot:userMenu>
                     <a href="{{ route('agent.profile') }}"

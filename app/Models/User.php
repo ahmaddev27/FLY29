@@ -71,21 +71,6 @@ class User extends Authenticatable
         return $this->hasMany(AuditLog::class);
     }
 
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(Notification::class);
-    }
-
-    public function sentMessages(): HasMany
-    {
-        return $this->hasMany(Message::class, 'sender_id');
-    }
-
-    public function receivedMessages(): HasMany
-    {
-        return $this->hasMany(Message::class, 'receiver_id');
-    }
-
     public function notificationPreferences(): HasMany
     {
         return $this->hasMany(UserNotificationPreference::class);
