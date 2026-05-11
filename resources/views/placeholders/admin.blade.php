@@ -4,7 +4,7 @@
             <x-ui.badge variant="primary" :dot="true" class="mb-4">{{ auth()->user()->role }}</x-ui.badge>
             <h1 class="text-2xl font-bold mb-2">أهلاً، {{ auth()->user()->full_name }}</h1>
             <p class="text-[var(--color-text-secondary)] mb-4">
-                لوحة الأدمن التجريبية. ستُبنى الكاملة في Sprint 3.1.
+                لوحة الأدمن التجريبية. الصفحة الكاملة قيد التطوير.
             </p>
 
             <form method="POST" action="{{ route('logout') }}">

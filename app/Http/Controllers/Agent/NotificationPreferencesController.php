@@ -12,7 +12,7 @@ class NotificationPreferencesController extends Controller
 {
     /**
      * Notification types the agent can toggle.
-     * Keep in sync with NotificationService dispatcher (Sprint 2.3).
+     * Keep in sync with NotificationService dispatcher.
      */
     public const TYPES = [
         'tier_upgraded'        => 'ترقية التصنيف',

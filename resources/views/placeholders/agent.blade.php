@@ -4,7 +4,7 @@
             <x-ui.tier-badge tier="bronze" size="lg" class="mb-4" />
             <h1 class="text-2xl font-bold mb-2">أهلاً، {{ auth()->user()->full_name }}</h1>
             <p class="text-[var(--color-text-secondary)] mb-4">
-                أنت داخل لوحة الوكيل التجريبية. ستُبنى لوحة التحكم الكاملة في Sprint 1.3.
+                أنت داخل لوحة الوكيل التجريبية. الصفحة الكاملة قيد التطوير.
             </p>
 
             <form method="POST" action="{{ route('logout') }}">

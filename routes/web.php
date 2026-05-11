@@ -1,41 +1,46 @@
 <?php
 
-use App\Http\Controllers\Admin\PackageController as AdminPackage;
-use App\Http\Controllers\Admin\RedemptionController as AdminRedemption;
-use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
-use App\Http\Controllers\Agent\NotificationController as AgentNotifications;
-use App\Http\Controllers\Agent\NotificationPreferencesController as AgentNotificationPrefs;
-use App\Http\Controllers\Agent\PackageController as AgentPackage;
-use App\Http\Controllers\Agent\ProfileController as AgentProfile;
-use App\Http\Controllers\Agent\RedemptionController as AgentRedemption;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+/*
+|--------------------------------------------------------------------------
+| Public + global
+|--------------------------------------------------------------------------
+*/
+Route::get('/', fn () => redirect()->route('login'));
+
+// Design system showcase (dev / internal)
+Route::view('/design-system', 'design-system')->name('design-system');
 
 /*
 |--------------------------------------------------------------------------
-| Guest routes
+| Guest auth (login, forgot/reset password)
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->group(function () {
-    Route::get('/login',  [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'store'])
-        ->middleware('throttle:login')->name('login.store');
 
-    Route::get('/forgot-password',  [PasswordResetController::class, 'showLinkRequest'])->name('password.request');
-    Route::post('/forgot-password', [PasswordResetController::class, 'sendLink'])
-        ->middleware('throttle:password-reset')->name('password.email');
-    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
-    Route::post('/reset-password',          [PasswordResetController::class, 'update'])->name('password.update');
+    Route::controller(LoginController::class)->group(function () {
+        Route::get('/login',  'show')->name('login');
+        Route::post('/login', 'store')
+            ->middleware('throttle:login')
+            ->name('login.store');
+    });
+
+    Route::controller(PasswordResetController::class)->group(function () {
+        Route::get('/forgot-password',          'showLinkRequest')->name('password.request');
+        Route::post('/forgot-password',         'sendLink')
+            ->middleware('throttle:password-reset')
+            ->name('password.email');
+        Route::get('/reset-password/{token}',   'showReset')->name('password.reset');
+        Route::post('/reset-password',          'update')->name('password.update');
+    });
 });
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated common
+| Authenticated — shared (logout)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
@@ -44,82 +49,10 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Agent routes (role=agent only)
+| Role-specific route files
 |--------------------------------------------------------------------------
+| Loaded automatically by bootstrap/app.php (see the `then:` callback):
+|   - routes/agent.php   → /agent/*
+|   - routes/admin.php   → /admin/*
+|   - routes/manager.php → /manager/*
 */
-Route::middleware(['auth', 'agent'])->prefix('agent')->name('agent.')->group(function () {
-    Route::get('/dashboard', [AgentDashboard::class, 'index'])->name('dashboard');
-
-    // Profile
-    Route::get('/profile',           [AgentProfile::class, 'show'])->name('profile');
-    Route::put('/profile',           [AgentProfile::class, 'update'])->name('profile.update');
-    Route::put('/profile/password',  [AgentProfile::class, 'password'])->name('profile.password');
-
-    // Notification preferences
-    Route::get('/notification-preferences', [AgentNotificationPrefs::class, 'show'])->name('notification-preferences');
-    Route::put('/notification-preferences', [AgentNotificationPrefs::class, 'update'])->name('notification-preferences.update');
-
-    // Notifications (AJAX)
-    Route::get('/notifications',                       [AgentNotifications::class, 'index'])->name('notifications.index');
-    Route::patch('/notifications/{notification}/read', [AgentNotifications::class, 'markAsRead'])->name('notifications.read');
-    Route::patch('/notifications/read-all',            [AgentNotifications::class, 'markAllAsRead'])->name('notifications.read-all');
-
-    // Redemptions (cash + my requests)
-    Route::get('/redemptions',                          [AgentRedemption::class, 'index'])->name('redemptions.index');
-    Route::get('/redemptions/cash',                     [AgentRedemption::class, 'cashForm'])->name('redemptions.cash');
-    Route::post('/redemptions/cash',                    [AgentRedemption::class, 'storeCash'])->name('redemptions.cash.store');
-    Route::delete('/redemptions/{redemption}',          [AgentRedemption::class, 'destroy'])->name('redemptions.cancel');
-
-    // Legacy alias for sidebar
-    Route::get('/redemptions-list', fn() => redirect()->route('agent.redemptions.index'))->name('redemptions');
-
-    // Free packages
-    Route::get('/redemptions/packages',           [AgentPackage::class, 'index'])->name('redemptions.packages');
-    Route::post('/redemptions/packages/{package}/redeem', [AgentPackage::class, 'redeem'])->name('packages.redeem');
-
-    // Placeholders (later sprints)
-    Route::view('/wallets',         'placeholders.agent')->name('wallets');
-    Route::view('/transactions',    'placeholders.agent')->name('transactions');
-    Route::view('/messages',        'placeholders.agent')->name('messages');
-    Route::view('/tiers',           'placeholders.agent')->name('tiers');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Admin routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/dashboard', 'placeholders.admin')->name('dashboard');
-
-    // Redemptions
-    Route::get('/redemptions',                          [AdminRedemption::class, 'index'])->name('redemptions');
-    Route::post('/redemptions/{redemption}/approve',    [AdminRedemption::class, 'approve'])->name('redemptions.approve');
-    Route::post('/redemptions/{redemption}/reject',     [AdminRedemption::class, 'reject'])->name('redemptions.reject');
-
-    // Free packages (CRUD)
-    Route::get('/packages',                       [AdminPackage::class, 'index'])->name('packages');
-    Route::get('/packages/create',                [AdminPackage::class, 'create'])->name('packages.create');
-    Route::post('/packages',                      [AdminPackage::class, 'store'])->name('packages.store');
-    Route::get('/packages/{package}/edit',        [AdminPackage::class, 'edit'])->name('packages.edit');
-    Route::put('/packages/{package}',             [AdminPackage::class, 'update'])->name('packages.update');
-    Route::patch('/packages/{package}/toggle',    [AdminPackage::class, 'toggle'])->name('packages.toggle');
-    Route::delete('/packages/{package}',          [AdminPackage::class, 'destroy'])->name('packages.destroy');
-
-    // Placeholders (Sprint 3.x)
-    Route::view('/agents',   'placeholders.admin')->name('agents');
-    Route::view('/reports',  'placeholders.admin')->name('reports');
-    Route::view('/settings', 'placeholders.admin')->name('settings');
-    Route::view('/audit',    'placeholders.admin')->name('audit');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::view('/manager/dashboard', 'placeholders.manager')->name('manager.dashboard');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Design System showcase (dev only)
-|--------------------------------------------------------------------------
-*/
-Route::view('/design-system', 'design-system')->name('design-system');
