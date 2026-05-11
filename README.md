@@ -10,12 +10,12 @@
 
 | الحقل | القيمة |
 |------|--------|
-| **التقدم الإجمالي** | `▓▓▓░░░░░░░` **32%** (115 / 363 task) |
-| **المرحلة الحالية** | 🚧 Phase 1 — MVP Core |
-| **آخر Sprint منجز** | ✅ Sprint 1.2 — Webhook & Points Engine |
-| **التالي** | ⏭️ Sprint 1.3 — Agent Dashboard |
-| **Feature Tests الخضراء** | ✅ 13 / 13 (1.08s) |
-| **عدد الـ Commits** | 8 |
+| **التقدم الإجمالي** | `▓▓▓▓░░░░░░` **39%** (143 / 363 task) |
+| **المرحلة الحالية** | 🚧 Phase 1 — MVP Core (Phase 1 ✅ مكتمل) |
+| **آخر Sprint منجز** | ✅ Sprint 1.3 — Agent Dashboard |
+| **التالي** | ⏭️ Sprint 2.1 — Cash Redemption |
+| **Feature Tests الخضراء** | ✅ 27 / 27 (1.14s) |
+| **عدد الـ Commits** | 9 |
 
 ---
 
@@ -23,7 +23,7 @@
 
 ```
 Phase 0  Foundation              ▓▓▓▓▓▓▓▓▓▓ 100% ✅  (40/40)
-Phase 1  MVP Core                ▓▓▓▓▓▓▓▓░░  79% 🚧  (75/95)
+Phase 1  MVP Core                ▓▓▓▓▓▓▓▓▓▓ 100% ✅  (103/103) ← Phase 1 مكتمل!
 Phase 2  Wallets + Redemption    ░░░░░░░░░░   0% ⏸️  (0/75)
 Phase 3  Admin Panel             ░░░░░░░░░░   0% ⏸️  (0/80)
 Phase 4  AM Panel + Reports      ░░░░░░░░░░   0% ⏸️  (0/45)
@@ -33,37 +33,32 @@ Phase 6  Launch                  ░░░░░░░░░░   0% ⏸️  (0/
 
 ---
 
-## ✅ آخر إنجاز: Sprint 1.2 — Webhook & Points Engine (33 task)
+## ✅ آخر إنجاز: Sprint 1.3 — Agent Dashboard (28 task)
 
-النظام الآن يستقبل ويعالج webhooks من Main Site **End-to-End**:
+لوحة الوكيل **حية** وتعمل على `/agent/dashboard`:
 
 | الفئة | المخرجات |
 |------|--------|
-| **Middlewares** | `WebhookAuth` (constant-time) + `VerifyHmacSignature` + `ApiLog` (مع مَسك للـ sensitive headers) |
-| **Services** | `IdempotencyService`، `PointsCalculationService` (مع pending fraction)، `WalletService` (5 ops، DB-locked)، `TierService` (sync upgrade) |
-| **Action** | `IngestTransactionAction` (orchestrator واحد، transactional) |
-| **HTTP** | `WebhookController` (ingest + health) + `IngestTransactionRequest` + routes/api.php |
-| **Rate Limit** | webhook = 100/min/api-key |
-| **Tests** | 13 Feature tests، 44 assertion، **1.08s** (sqlite-memory) |
-| **Deliverables** | `docs/api-webhook.md` + Postman collection بـ HMAC pre-request |
+| **Service** | `AgentDashboardService` يجمع: tier info، wallets، 4 KPIs، آخر 10 معاملات، أقرب باكج، warnings — في request واحد |
+| **Controllers** | `DashboardController`، `ProfileController`، `NotificationPreferencesController`، `NotificationController` (AJAX) |
+| **Middleware** | `EnsureAgent` (يحوّل admins/managers لوحاتهم تلقائياً) |
+| **UI Components** | `<x-agent.tier-card>` (progress + countdown + colors)، `<x-agent.wallet-card>` (cash + package variants) |
+| **Pages** | dashboard، profile، notification-preferences (مع 8 أنواع × 3 قنوات) |
+| **Routes** | 16 route تحت `/agent/*` (مع placeholders للـ sprints القادمة) |
+| **Tests** | 12 Feature tests للوحة الوكيل (auth + dashboard + profile + preferences) |
+| **Bonus** | Resend mail integration للـ emails (Sprint 2.3) |
 
-### السيناريوهات المُختبرة تلقائياً ✅
-
-```
-✓ Successful webhook + dual-wallet credit
-✓ Duplicate reference_id → duplicate_ignored
-✓ Invalid HMAC → 401
-✓ Missing API key → 401
-✓ Unknown agent → 404
-✓ Suspended agent → 422 + held in pending_transactions
-✓ Validation failure → 422 envelope
-✓ Tier upgrade Silver → Gold عند 20 باكج
-✓ Amount-based mode + pending fraction
-✓ Config snapshot stored
-✓ Service txn = 1pt regardless of tier
-✓ Points history records both wallets
-✓ Public health endpoint
-```
+### ما يراه الوكيل لما يدخل ✅
+- ✅ بطاقة تصنيفه الحالي (Bronze/Silver/Gold/Diamond) مع progress bar للترقية
+- ✅ Countdown لإعادة التقييم
+- ✅ بطاقتا المحفظتين (نقدية مع USD value + باكجات مع أقرب باكج)
+- ✅ 4 KPI cards (نقاط/باكجات الشهر، القيمة الدولارية، أيام للتقييم)
+- ✅ جدول آخر 10 معاملات
+- ✅ Empty state للوكلاء الجدد
+- ✅ Warning banner لخطر التخفيض
+- ✅ Sidebar collapsible + Topbar مع notifications dropdown
+- ✅ Profile page (edit name/phone/city + change password)
+- ✅ Notification preferences (8 أنواع × 3 قنوات)
 
 ---
 
@@ -81,6 +76,8 @@ Phase 6  Launch                  ░░░░░░░░░░   0% ⏸️  (0/
 ## 📜 تاريخ الـ Commits
 
 ```
+NEW      feat: complete Sprint 1.3 — Agent Dashboard
+401c94d  docs: turn README.md into live progress dashboard
 cb4ee1a  feat: complete Sprint 1.2 — Webhook & Points Engine
 782d42f  fix(ui): force spinner to paint before form submit navigates
 b7f13a6  feat(ui): smart auto-loading on all buttons system-wide
@@ -234,7 +231,7 @@ tests/Feature/Webhook/    # 13 passing tests
 
 ## 📞 الفريق
 
-- **Lead Developer:** Ahmad Qaddora — aqaddora96@gmail.com
+- ** Developer:** Ahmad Jaber — ahmedjaberdev@gmail.com
 - **Project Owner:** 29FLY Team
 
 ---

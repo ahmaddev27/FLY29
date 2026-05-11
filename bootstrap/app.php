@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook.auth'      => \App\Http\Middleware\WebhookAuth::class,
             'webhook.signature' => \App\Http\Middleware\VerifyHmacSignature::class,
             'webhook.log'       => \App\Http\Middleware\ApiLog::class,
+            'agent'             => \App\Http\Middleware\EnsureAgent::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
