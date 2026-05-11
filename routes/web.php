@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\RedemptionController as AdminRedemption;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
 use App\Http\Controllers\Agent\NotificationController as AgentNotifications;
 use App\Http\Controllers\Agent\NotificationPreferencesController as AgentNotificationPrefs;
 use App\Http\Controllers\Agent\ProfileController as AgentProfile;
+use App\Http\Controllers\Agent\RedemptionController as AgentRedemption;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Route;
@@ -60,10 +62,17 @@ Route::middleware(['auth', 'agent'])->prefix('agent')->name('agent.')->group(fun
     Route::patch('/notifications/{notification}/read', [AgentNotifications::class, 'markAsRead'])->name('notifications.read');
     Route::patch('/notifications/read-all',            [AgentNotifications::class, 'markAllAsRead'])->name('notifications.read-all');
 
-    // Placeholders for upcoming sprints (so route() helper doesn't crash)
+    // Redemptions (cash + my requests)
+    Route::get('/redemptions',                          [AgentRedemption::class, 'index'])->name('redemptions.index');
+    Route::get('/redemptions/cash',                     [AgentRedemption::class, 'cashForm'])->name('redemptions.cash');
+    Route::post('/redemptions/cash',                    [AgentRedemption::class, 'storeCash'])->name('redemptions.cash.store');
+    Route::delete('/redemptions/{redemption}',          [AgentRedemption::class, 'destroy'])->name('redemptions.cancel');
+
+    // Legacy alias for sidebar
+    Route::get('/redemptions-list', fn() => redirect()->route('agent.redemptions.index'))->name('redemptions');
+
+    // Placeholders (Sprint 2.2+)
     Route::view('/wallets',                'placeholders.agent')->name('wallets');
-    Route::view('/redemptions',            'placeholders.agent')->name('redemptions');
-    Route::view('/redemptions/cash',       'placeholders.agent')->name('redemptions.cash');
     Route::view('/redemptions/packages',   'placeholders.agent')->name('redemptions.packages');
     Route::view('/transactions',           'placeholders.agent')->name('transactions');
     Route::view('/messages',               'placeholders.agent')->name('messages');
@@ -72,11 +81,26 @@ Route::middleware(['auth', 'agent'])->prefix('agent')->name('agent.')->group(fun
 
 /*
 |--------------------------------------------------------------------------
-| Admin + Manager placeholders (real ones in Sprint 3.1 / 4.1)
+| Admin routes
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::view('/dashboard', 'placeholders.admin')->name('dashboard');
+
+    // Redemptions
+    Route::get('/redemptions',                          [AdminRedemption::class, 'index'])->name('redemptions');
+    Route::post('/redemptions/{redemption}/approve',    [AdminRedemption::class, 'approve'])->name('redemptions.approve');
+    Route::post('/redemptions/{redemption}/reject',     [AdminRedemption::class, 'reject'])->name('redemptions.reject');
+
+    // Placeholders (Sprint 3.x)
+    Route::view('/agents',   'placeholders.admin')->name('agents');
+    Route::view('/packages', 'placeholders.admin')->name('packages');
+    Route::view('/reports',  'placeholders.admin')->name('reports');
+    Route::view('/settings', 'placeholders.admin')->name('settings');
+    Route::view('/audit',    'placeholders.admin')->name('audit');
+});
+
 Route::middleware('auth')->group(function () {
-    Route::view('/admin/dashboard',   'placeholders.admin')->name('admin.dashboard');
     Route::view('/manager/dashboard', 'placeholders.manager')->name('manager.dashboard');
 });
 

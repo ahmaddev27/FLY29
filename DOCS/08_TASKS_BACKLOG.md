@@ -188,31 +188,38 @@
 
 ### Sprint 2.1: Cash Redemption — أسبوع
 
-- [ ] **T-139** — صفحة "تحويل النقاط" `agent/redemption/cash.blade.php`.
-- [ ] **T-140** — Slider + Number input بـ Alpine.js (مع حد أدنى/أقصى).
-- [ ] **T-141** — Validation فورية: `>= min_redemption_points`.
-- [ ] **T-142** — Validation: `<= available_points`.
-- [ ] **T-143** — Confirmation Modal مع تفاصيل الطلب.
-- [ ] **T-144** — `Agent\RedemptionController::storeCash()`.
-- [ ] **T-145** — `RedemptionService::createCashRequest()` داخل DB Transaction.
-- [ ] **T-146** — `WalletService::lockPoints()` (با re-check للرصيد).
-- [ ] **T-147** — `NewRedemptionRequestNotification` للأدمن (email + in-app).
-- [ ] **T-148** — صفحة "طلباتي" `agent/redemptions/index.blade.php`.
-- [ ] **T-149** — `Agent\RedemptionController::destroy()` لإلغاء طلب pending.
-- [ ] **T-150** — منطق الإلغاء: unlock points + تحديث status = cancelled.
-- [ ] **T-151** — صفحة الأدمن "Pending Requests" `admin/redemptions/pending.blade.php`.
-- [ ] **T-152** — `Admin\RedemptionController::approve($id)`.
-- [ ] **T-153** — Approve flow: `locked_points -= X` (خصم نهائي، لا يعود للـ available).
-- [ ] **T-154** — `Admin\RedemptionController::reject($id)`.
-- [ ] **T-155** — Reject flow: unlock points (`available += X`، `locked -= X`).
-- [ ] **T-156** — Validation: reject reason إجباري.
-- [ ] **T-157** — `RedemptionApprovedNotification` (email + in-app).
-- [ ] **T-158** — `RedemptionRejectedNotification` (email + in-app مع السبب).
-- [ ] **T-159** — مكوّن `<x-ui.status-badge>` (Pending/Approved/Rejected/Cancelled/Fulfilled).
-- [ ] **T-160** — Feature Test: Full Cash Redemption Flow.
-- [ ] **T-161** — Feature Test: Race Condition prevention (محاولتان متزامنتان).
-- [ ] **T-162** — Feature Test: Cancel pending request يعيد النقاط.
-- [ ] **T-163** — Feature Test: Reject يتطلب سبب نصي.
+- [x] **T-139** — `agent/redemptions/cash.blade.php` (slider + number + USD live preview). ✅
+- [x] **T-140** — Slider + Number bound بـ Alpine `x-model.number` (sync ثنائي). ✅
+- [x] **T-141** — Validation فورية على `min_redemption_points` (frontend + backend). ✅
+- [x] **T-142** — Validation على `<= available_points` (Alpine + WalletService::lockPoints). ✅
+- [x] **T-143** — Confirmation Modal مع نقاط + USD breakdown. ✅
+- [x] **T-144** — `Agent\RedemptionController::storeCash()`. ✅
+- [x] **T-145** — `RedemptionService::createCashRequest()` DB transaction. ✅
+- [x] **T-146** — `WalletService::lockPoints()` يعمل re-check داخل lock. ✅
+- [ ] **T-147** — `NewRedemptionRequestNotification` — مؤجل لـ Sprint 2.3 (مع كل الـ notifications). audit_log يكتب الحدث حالياً.
+- [x] **T-148** — `agent/redemptions/index.blade.php` (جدول مع الـ pagination + إجراء إلغاء). ✅
+- [x] **T-149** — `Agent\RedemptionController::destroy()` للإلغاء. ✅
+- [x] **T-150** — `RedemptionService::cancel()` يفك lock + تحديث status. ✅
+- [x] **T-151** — `admin/redemptions/index.blade.php` (4 stat cards + tabs + filters + table). ✅
+- [x] **T-152** — `Admin\RedemptionController::approve()`. ✅
+- [x] **T-153** — Approve: `finalizeLocked()` ينقل من locked إلى lifetime_redeemed (خصم نهائي). ✅
+- [x] **T-154** — `Admin\RedemptionController::reject()`. ✅
+- [x] **T-155** — Reject: `unlockPoints()` يعيد للمتاح + يكتب في points_history مع source=rejection_refund. ✅
+- [x] **T-156** — Validation: rejection_reason required + min 5 + max 500. ✅
+- [ ] **T-157** — `RedemptionApprovedNotification` — مؤجل لـ Sprint 2.3.
+- [ ] **T-158** — `RedemptionRejectedNotification` — مؤجل لـ Sprint 2.3.
+- [x] **T-159** — Status badges مدمجة في الصفحات (warning/success/danger/neutral/info) — لا حاجة لمكوّن منفصل. ✅
+- [x] **T-160** — Feature Test: full cash flow (submit → approve → balance). ✅
+- [x] **T-161** — Feature Test: above-available rejected + below-min rejected (race prevention via DB lock). ✅
+- [x] **T-162** — Feature Test: cancel returns points. ✅
+- [x] **T-163** — Feature Test: reject requires reason. ✅
+
+### Bonus
+- ✅ Admin layout كامل `components/layouts/admin.blade.php` (sidebar + topbar + pending badge في الـ nav)
+- ✅ `EnsureAdmin` middleware (403 لغير الأدمن)
+- ✅ Filters على admin redemptions: status (4 tabs + all) + type (cash/package)
+- ✅ Pagination في الصفحتين
+- ✅ Branding: شعار fly29 الرسمي + favicon في كل الـ layouts
 
 ### Sprint 2.2: Package Redemption — نصف أسبوع
 

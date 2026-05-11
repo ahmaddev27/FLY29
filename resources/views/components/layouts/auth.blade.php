@@ -9,6 +9,9 @@
 
     <title>{{ $title }} — {{ config('app.name') }}</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,12 +24,9 @@
     <div class="w-full max-w-md">
         {{-- Logo --}}
         <div class="text-center mb-6">
-            <div class="inline-flex w-16 h-16 rounded-2xl bg-[var(--color-primary-500)] text-white items-center justify-center mb-3">
-                <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                </svg>
-            </div>
-            <h1 class="text-2xl font-bold text-[var(--color-text-primary)]">{{ config('app.name', '29FLY Loyalty') }}</h1>
+            <img src="{{ asset('images/fly29-logo.png') }}"
+                 alt="29FLY"
+                 class="h-16 mx-auto mb-3 object-contain">
             <p class="text-sm text-[var(--color-text-secondary)] mt-1">برنامج ولاء الوكلاء</p>
         </div>
 

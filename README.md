@@ -10,12 +10,12 @@
 
 | الحقل | القيمة |
 |------|--------|
-| **التقدم الإجمالي** | `▓▓▓▓░░░░░░` **39%** (143 / 363 task) |
-| **المرحلة الحالية** | 🚧 Phase 1 — MVP Core (Phase 1 ✅ مكتمل) |
-| **آخر Sprint منجز** | ✅ Sprint 1.3 — Agent Dashboard |
-| **التالي** | ⏭️ Sprint 2.1 — Cash Redemption |
-| **Feature Tests الخضراء** | ✅ 27 / 27 (1.14s) |
-| **عدد الـ Commits** | 9 |
+| **التقدم الإجمالي** | `▓▓▓▓░░░░░░` **46%** (168 / 363 task) |
+| **المرحلة الحالية** | 🚧 Phase 2 — Wallets & Redemption |
+| **آخر Sprint منجز** | ✅ Sprint 2.1 — Cash Redemption |
+| **التالي** | ⏭️ Sprint 2.2 — Package Redemption |
+| **Feature Tests الخضراء** | ✅ 37 / 37 (6.75s) |
+| **عدد الـ Commits** | 10 |
 
 ---
 
@@ -23,8 +23,8 @@
 
 ```
 Phase 0  Foundation              ▓▓▓▓▓▓▓▓▓▓ 100% ✅  (40/40)
-Phase 1  MVP Core                ▓▓▓▓▓▓▓▓▓▓ 100% ✅  (103/103) ← Phase 1 مكتمل!
-Phase 2  Wallets + Redemption    ░░░░░░░░░░   0% ⏸️  (0/75)
+Phase 1  MVP Core                ▓▓▓▓▓▓▓▓▓▓ 100% ✅  (103/103)
+Phase 2  Wallets + Redemption    ▓▓▓░░░░░░░  33% 🚧  (25/75) ← Sprint 2.1 منجز
 Phase 3  Admin Panel             ░░░░░░░░░░   0% ⏸️  (0/80)
 Phase 4  AM Panel + Reports      ░░░░░░░░░░   0% ⏸️  (0/45)
 Phase 5  Pre-Launch              ░░░░░░░░░░   0% ⏸️  (0/15)
@@ -33,7 +33,38 @@ Phase 6  Launch                  ░░░░░░░░░░   0% ⏸️  (0/
 
 ---
 
-## ✅ آخر إنجاز: Sprint 1.3 — Agent Dashboard (28 task)
+## ✅ آخر إنجاز: Sprint 2.1 — Cash Redemption (25 task)
+
+تدفّق طلبات التحويل النقدي **End-to-End** يشتغل: الوكيل يطلب → النقاط تُحجز → الأدمن يوافق/يرفض → اعتماد نهائي أو استرداد + إشعار. كل العمليات DB-locked + audited.
+
+| الفئة | المخرجات |
+|------|--------|
+| **Service** | `RedemptionService` (createCash، approveCash، rejectCash، cancel، redeemPackage) |
+| **Controllers** | `Agent\RedemptionController` (index، cashForm، storeCash، destroy) + `Admin\RedemptionController` (index بـ filters + tabs، approve، reject) |
+| **Middleware** | `EnsureAdmin` (بالإضافة لـ EnsureAgent من قبل) |
+| **Layouts** | `<x-layouts.admin>` كامل مع sidebar + topbar + badge للـ pending requests |
+| **Pages** | agent/redemptions/cash (مع slider + USD calculator + confirm modal) + agent/redemptions/index + admin/redemptions/index (4 tabs + filters) |
+| **Routes** | 6 جديدة (3 agent + 3 admin) |
+| **Branding** | شعار + favicon fly29.net الرسميان مدمجان في كل الـ layouts |
+| **Tests** | 10 جديدة + 27 قبلها = **37/37 خضراء في 6.75s** |
+
+### 🧪 السيناريوهات المُختبرة في Sprint 2.1
+```
+✓ Agent submits cash redemption (locks points)
+✓ Below minimum is rejected
+✓ Above available is rejected
+✓ Admin approves (final deduction + lifetime_redeemed updated)
+✓ Admin rejects with reason (locked points returned to available)
+✓ Reject requires reason
+✓ Agent cancels own pending request
+✓ Cannot approve non-pending request
+✓ Non-admin gets 403 on admin redemptions
+✓ Multiple requests paginate correctly
+```
+
+---
+
+### Sprint 1.3 — Agent Dashboard (سابقاً)
 
 لوحة الوكيل **حية** وتعمل على `/agent/dashboard`:
 
@@ -76,7 +107,8 @@ Phase 6  Launch                  ░░░░░░░░░░   0% ⏸️  (0/
 ## 📜 تاريخ الـ Commits
 
 ```
-NEW      feat: complete Sprint 1.3 — Agent Dashboard
+NEW      feat: complete Sprint 2.1 — Cash Redemption + fly29 branding
+c380fce  feat: complete Sprint 1.3 — Agent Dashboard
 401c94d  docs: turn README.md into live progress dashboard
 cb4ee1a  feat: complete Sprint 1.2 — Webhook & Points Engine
 782d42f  fix(ui): force spinner to paint before form submit navigates

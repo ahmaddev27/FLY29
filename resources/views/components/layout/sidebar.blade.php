@@ -21,13 +21,17 @@
     {{-- Brand --}}
     <div class="flex items-center justify-between px-4 py-4 border-b border-[var(--color-surface-divider)]">
         <div class="flex items-center gap-2 overflow-hidden">
-            <div class="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--color-primary-500)] text-white flex items-center justify-center flex-shrink-0">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                </svg>
-            </div>
-            <div x-show="!collapsed" class="min-w-0">
-                <h2 class="text-sm font-bold text-[var(--color-text-primary)] truncate">{{ $brand }}</h2>
+            {{-- Collapsed: favicon. Expanded: full logo --}}
+            <img x-show="!collapsed"
+                 src="{{ asset('images/fly29-logo.png') }}"
+                 alt="29FLY"
+                 class="h-9 object-contain flex-shrink-0">
+            <img x-show="collapsed"
+                 x-cloak
+                 src="{{ asset('favicon.png') }}"
+                 alt="29FLY"
+                 class="w-9 h-9 object-contain flex-shrink-0">
+            <div x-show="!collapsed" x-cloak class="min-w-0 ms-2">
                 <p class="text-xs text-[var(--color-text-secondary)] truncate">{{ $subtitle }}</p>
             </div>
         </div>
