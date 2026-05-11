@@ -10,55 +10,88 @@
    Inspired by fly29.net
    ============================================ */
 @theme {
-    /* ---- Brand Colors ---- */
+    /* ---- Brand Colors (primary blue from fly29) ---- */
     --color-primary-50:  #EFF6FF;
     --color-primary-100: #DBEAFE;
     --color-primary-200: #BFDBFE;
     --color-primary-300: #93C5FD;
     --color-primary-400: #60A5FA;
-    --color-primary-500: #0066CC; /* primary fly29 blue */
+    --color-primary-500: #0066CC;
     --color-primary-600: #0052A3;
     --color-primary-700: #003D7A;
     --color-primary-800: #002952;
     --color-primary-900: #001429;
 
-    /* CTA (green/teal) */
+    /* CTA (green / teal) */
+    --color-cta-50:  #ECFDF5;
+    --color-cta-100: #D1FAE5;
     --color-cta-500: #10B981;
     --color-cta-600: #059669;
     --color-cta-700: #047857;
 
     /* Accent (orange / featured) */
+    --color-accent-50:  #FFFBEB;
+    --color-accent-100: #FEF3C7;
     --color-accent-500: #F59E0B;
     --color-accent-600: #D97706;
 
+    /* Status */
+    --color-danger-50:  #FEF2F2;
+    --color-danger-100: #FEE2E2;
+    --color-danger-500: #EF4444;
+    --color-danger-600: #DC2626;
+    --color-danger-700: #B91C1C;
+
+    --color-warning-50:  #FFFBEB;
+    --color-warning-500: #F59E0B;
+    --color-warning-700: #B45309;
+
+    --color-success-50:  #ECFDF5;
+    --color-success-500: #10B981;
+    --color-success-700: #047857;
+
+    --color-info-50:  #EFF6FF;
+    --color-info-500: #3B82F6;
+    --color-info-700: #1D4ED8;
+
     /* Tier Colors */
-    --color-tier-diamond: #3B82F6;
-    --color-tier-gold:    #F59E0B;
-    --color-tier-silver:  #94A3B8;
-    --color-tier-bronze:  #A16207;
+    --color-tier-diamond:    #3B82F6;
+    --color-tier-diamond-50: #EFF6FF;
+    --color-tier-gold:       #F59E0B;
+    --color-tier-gold-50:    #FFFBEB;
+    --color-tier-silver:     #94A3B8;
+    --color-tier-silver-50:  #F1F5F9;
+    --color-tier-bronze:     #A16207;
+    --color-tier-bronze-50:  #FEF7E7;
 
     /* Surface */
     --color-surface:           #FFFFFF;
     --color-surface-secondary: #F5F5F5;
+    --color-surface-tertiary:  #FAFAFA;
     --color-surface-border:    #E5E7EB;
+    --color-surface-divider:   #F3F4F6;
 
     /* Text */
     --color-text-primary:   #222222;
     --color-text-secondary: #666666;
     --color-text-muted:     #9CA3AF;
+    --color-text-inverse:   #FFFFFF;
 
     /* ---- Typography ---- */
-    --font-sans: 'Cairo', 'Tahoma', 'Segoe UI', sans-serif;
+    --font-sans:  'Cairo', 'Tahoma', 'Segoe UI', sans-serif;
     --font-latin: 'Inter', system-ui, sans-serif;
 
     /* ---- Radii ---- */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
+    --radius-xl: 16px;
 
     /* ---- Shadows ---- */
     --shadow-card:  0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
     --shadow-modal: 0 10px 25px rgba(0, 0, 0, 0.15);
+    --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.10);
 }
 
 /* ============================================
@@ -66,15 +99,34 @@
    ============================================ */
 html {
     font-family: var(--font-sans);
+    direction: rtl;
 }
 
 body {
     background-color: var(--color-surface-secondary);
     color: var(--color-text-primary);
-    direction: rtl;
     text-align: right;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Improved readability */
-.font-latin { font-family: var(--font-latin); }
-.font-arabic { font-family: var(--font-sans); }
+/* Typography helpers */
+.font-latin { font-family: var(--font-latin); direction: ltr; }
+.font-arabic { font-family: var(--font-sans); direction: rtl; }
+.text-balance { text-wrap: balance; }
+
+/* Focus visible (a11y) */
+*:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Scrollbar (subtle) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-surface-secondary); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* Transitions */
+.transition-base { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }

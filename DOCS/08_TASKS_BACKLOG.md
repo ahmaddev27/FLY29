@@ -28,31 +28,31 @@
 
 ### Sprint 0.2: الديزاين سيستيم (Design System) — 4 أيام
 
-- [ ] **T-016** — تعريف CSS variables للألوان في `resources/css/app.css`.
-- [ ] **T-017** — تعريف Typography classes (h1, h2, h3, body, small).
-- [ ] **T-018** — مكوّن `<x-ui.button>`: variants (primary/secondary/danger/ghost) + sizes (sm/md/lg).
-- [ ] **T-019** — مكوّن `<x-ui.input>`: text/email/password/number + icon support.
-- [ ] **T-020** — مكوّن `<x-ui.select>` / `<x-ui.dropdown>`.
-- [ ] **T-021** — مكوّن `<x-ui.textarea>`.
-- [ ] **T-022** — مكوّن `<x-ui.card>`: variants (default، with-header، stat-card).
-- [ ] **T-023** — مكوّن `<x-ui.stat-card>` للـ KPIs.
-- [ ] **T-024** — مكوّن `<x-ui.badge>`: status, count.
-- [ ] **T-025** — مكوّن `<x-ui.tier-badge>` (Diamond/Gold/Silver/Bronze) بألوانها وأيقوناتها.
-- [ ] **T-026** — مكوّن `<x-ui.modal>` بـ Alpine.js (sm/md/lg).
-- [ ] **T-027** — مكوّن `<x-ui.alert>` / `<x-ui.toast>` (success/error/warning/info).
-- [ ] **T-028** — مكوّن `<x-ui.table>`: sortable, with-actions, with-filter.
-- [ ] **T-029** — مكوّن `<x-ui.pagination>`.
-- [ ] **T-030** — مكوّن `<x-layout.sidebar>` collapsible.
-- [ ] **T-031** — مكوّن `<x-layout.topbar>` مع notifications dropdown placeholder.
-- [ ] **T-032** — مكوّن `<x-ui.tabs>` بـ Alpine.js.
-- [ ] **T-033** — مكوّن `<x-ui.tooltip>`.
-- [ ] **T-034** — مكوّن `<x-ui.progress-bar>`.
-- [ ] **T-035** — مكوّن `<x-ui.empty-state>`.
-- [ ] **T-036** — مكوّن `<x-ui.spinner>` / Skeleton loader.
-- [ ] **T-037** — مكوّن `<x-forms.form-group>` + `<x-forms.error>`.
-- [ ] **T-038** — مكوّن `<x-ui.confirm-modal>` helper.
-- [ ] **T-039** — مكوّن `<x-ui.notification-dropdown>` (UI فقط، لا منطق بعد).
-- [ ] **T-040** — صفحة `/design-system` تعرض كل المكونات كـ Living Documentation.
+- [x] **T-016** — CSS variables للألوان (مع تصنيفات + ظلال + radii) في `app.css`. ✅
+- [x] **T-017** — Typography (Cairo + Inter + helpers + focus-visible). ✅
+- [x] **T-018** — `<x-ui.button>`: 6 variants × 3 sizes + loading + disabled + as-link. ✅
+- [x] **T-019** — `<x-ui.input>`: types + icons start/end + error state. ✅
+- [x] **T-020** — `<x-ui.select>` مع placeholder + selected + chevron. ✅
+- [x] **T-021** — `<x-ui.textarea>` مع error state. ✅
+- [x] **T-022** — `<x-ui.card>`: variants (with-header) + actions slot + padding/shadow options. ✅
+- [x] **T-023** — `<x-ui.stat-card>` للـ KPIs مع 8 ألوان + trend (up/down/neutral). ✅
+- [x] **T-024** — `<x-ui.badge>`: 6 variants + size + dot indicator. ✅
+- [x] **T-025** — `<x-ui.tier-badge>` للتصنيفات الأربعة (Bronze/Silver/Gold/Diamond) مع أيقونات. ✅
+- [x] **T-026** — `<x-ui.modal>` Alpine.js (4 sizes) + ESC close + footer slot + dispatch events. ✅
+- [x] **T-027** — `<x-ui.alert>`: 4 variants + dismissible + title + icon. ✅
+- [x] **T-028** — `<x-ui.table>` + `<x-ui.table-row>` + `<x-ui.table-cell>` مع RTL + hover. ✅
+- [x] **T-029** — `<x-ui.pagination>` مع windowing + first/last + previous/next. ✅
+- [x] **T-030** — `<x-layout.sidebar>` collapsible + nav items + active state + badges. ✅
+- [x] **T-031** — `<x-layout.topbar>` مع breadcrumbs + notifications dropdown + user dropdown. ✅
+- [x] **T-032** — `<x-ui.tabs>` + `<x-ui.tab-panel>` بـ Alpine.js. ✅
+- [x] **T-033** — `<x-ui.tooltip>` مع 4 positions. ✅
+- [x] **T-034** — `<x-ui.progress>` للتقدم نحو التصنيف (مع 8 ألوان + sizes). ✅
+- [x] **T-035** — `<x-ui.empty-state>` مع icon + description + actions slot. ✅
+- [x] **T-036** — `<x-ui.spinner>` (3 sizes × 3 colors). ✅
+- [x] **T-037** — `<x-forms.form-group>` + `<x-forms.error>` مع label/required/hint. ✅
+- [x] **T-038** — `<x-ui.confirm-modal>` helper مع form submission. ✅
+- [x] **T-039** — ~~`<x-ui.notification-dropdown>`~~ → مدمج داخل `<x-layout.topbar>`. ✅
+- [x] **T-040** — صفحة `/design-system` تعرض كل المكونات الـ 25 (Live Documentation). ✅
 
 ---
 
