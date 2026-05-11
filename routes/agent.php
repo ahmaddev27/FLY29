@@ -5,6 +5,7 @@ use App\Http\Controllers\Agent\NotificationPreferencesController;
 use App\Http\Controllers\Agent\PackageController;
 use App\Http\Controllers\Agent\ProfileController;
 use App\Http\Controllers\Agent\RedemptionController;
+use App\Http\Controllers\Agent\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,9 +59,19 @@ Route::middleware(['auth', 'agent'])
         // Convenience alias used by the sidebar
         Route::redirect('/redemptions-list', '/agent/redemptions')->name('redemptions');
 
+        // Transactions history + exports
+        Route::controller(TransactionController::class)
+            ->prefix('transactions')
+            ->name('transactions')
+            ->group(function () {
+                Route::get('/',              'index');
+                Route::get('/export/csv',    'exportCsv')->name('.export.csv');
+                Route::get('/export/excel',  'exportExcel')->name('.export.excel');
+                Route::get('/export/pdf',    'exportPdf')->name('.export.pdf');
+            });
+
         // Placeholders (real pages to come)
-        Route::view('/wallets',      'placeholders.agent')->name('wallets');
-        Route::view('/transactions', 'placeholders.agent')->name('transactions');
-        Route::view('/messages',     'placeholders.agent')->name('messages');
-        Route::view('/tiers',        'placeholders.agent')->name('tiers');
+        Route::view('/wallets',  'placeholders.agent')->name('wallets');
+        Route::view('/messages', 'placeholders.agent')->name('messages');
+        Route::view('/tiers',    'placeholders.agent')->name('tiers');
     });
