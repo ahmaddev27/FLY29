@@ -223,21 +223,28 @@
 
 ### Sprint 2.2: Package Redemption — نصف أسبوع
 
-- [ ] **T-164** — صفحة Admin Free Packages `admin/packages/index.blade.php`.
-- [ ] **T-165** — `Admin\PackageController::create/store` + Form.
-- [ ] **T-166** — `Admin\PackageController::edit/update`.
-- [ ] **T-167** — Toggle is_active (إخفاء عن الوكلاء بدون حذف).
-- [ ] **T-168** — رفع صورة الباكج (Laravel Storage).
-- [ ] **T-169** — صفحة الوكيل "الباكجات المجانية" `agent/packages/index.blade.php`.
-- [ ] **T-170** — Modal تفاصيل الباكج (الوجهة، المدة، النقاط).
-- [ ] **T-171** — Confirmation Modal مع تحذير "سيتم خصم X نقطة".
-- [ ] **T-172** — `Agent\RedemptionController::storePackage()`.
-- [ ] **T-173** — Package redemption flow: `status = approved`، `fulfilled = false`، خصم مباشر.
-- [ ] **T-174** — Notification للأدمن (logistics: التواصل مع الوكيل).
-- [ ] **T-175** — Feature Test: Package Redemption Flow.
-- [ ] **T-176** — Feature Test: رصيد غير كافٍ → خطأ مناسب.
-- [ ] **T-177** — Feature Test: باكج غير نشط لا يظهر/يُحجب.
-- [ ] **T-178** — Feature Test: التحقق من الرصيد عند التأكيد (race condition).
+- [x] **T-164** — `admin/packages/index.blade.php` (جدول مع الصورة + التحكم الكامل). ✅
+- [x] **T-165** — `Admin\PackageController::create/store` + `admin/packages/form.blade.php`. ✅
+- [x] **T-166** — `Admin\PackageController::edit/update` (نفس الـ form view). ✅
+- [x] **T-167** — Toggle is_active via PATCH endpoint (audit logged). ✅
+- [x] **T-168** — رفع صورة عبر Laravel Storage (`storage:link` + disk=public + حد 2 MB + استبدال الصورة عند update). ✅
+- [x] **T-169** — `agent/packages/index.blade.php` (grid responsive 1/2/3 columns). ✅
+- [x] **T-170** — Modal تأكيد بدل modal التفاصيل (تفاصيل الباكج معروضة في الكارد نفسه). ✅
+- [x] **T-171** — Confirmation Modal مع breakdown كامل (السعر + الرصيد بعد الاستبدال). ✅
+- [x] **T-172** — `Agent\PackageController::redeem()` (controller منفصل). ✅
+- [x] **T-173** — `RedemptionService::redeemPackage()` (أُنشئ في Sprint 2.1) — instant flow + auto-approved + خصم فوري. ✅
+- [ ] **T-174** — Notification للأدمن — مؤجل لـ Sprint 2.3 (مع كل الـ notifications).
+- [x] **T-175** — Feature Test: full package redemption flow. ✅
+- [x] **T-176** — Feature Test: insufficient balance rejected. ✅
+- [x] **T-177** — Feature Test: inactive package not in listing + cannot be redeemed. ✅
+- [x] **T-178** — Feature Test: expired package + DB lock prevents race (WalletService::debit يأخذ lockForUpdate). ✅
+
+### Bonus
+- ✅ `FreePackageRequest` FormRequest مع validation عربي.
+- ✅ Image upload + auto-delete للصورة القديمة عند الـ update.
+- ✅ Image upload + auto-delete عند حذف الباكج.
+- ✅ 4 admin endpoints إضافية: toggle + destroy.
+- ✅ Agent listing يحسب `affordable` و `missing` لكل باكج تلقائياً.
 
 ### Sprint 2.3: نظام الإشعارات — نصف أسبوع
 

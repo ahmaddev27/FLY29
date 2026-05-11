@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\PackageController as AdminPackage;
 use App\Http\Controllers\Admin\RedemptionController as AdminRedemption;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
 use App\Http\Controllers\Agent\NotificationController as AgentNotifications;
 use App\Http\Controllers\Agent\NotificationPreferencesController as AgentNotificationPrefs;
+use App\Http\Controllers\Agent\PackageController as AgentPackage;
 use App\Http\Controllers\Agent\ProfileController as AgentProfile;
 use App\Http\Controllers\Agent\RedemptionController as AgentRedemption;
 use App\Http\Controllers\Auth\LoginController;
@@ -71,12 +73,15 @@ Route::middleware(['auth', 'agent'])->prefix('agent')->name('agent.')->group(fun
     // Legacy alias for sidebar
     Route::get('/redemptions-list', fn() => redirect()->route('agent.redemptions.index'))->name('redemptions');
 
-    // Placeholders (Sprint 2.2+)
-    Route::view('/wallets',                'placeholders.agent')->name('wallets');
-    Route::view('/redemptions/packages',   'placeholders.agent')->name('redemptions.packages');
-    Route::view('/transactions',           'placeholders.agent')->name('transactions');
-    Route::view('/messages',               'placeholders.agent')->name('messages');
-    Route::view('/tiers',                  'placeholders.agent')->name('tiers');
+    // Free packages
+    Route::get('/redemptions/packages',           [AgentPackage::class, 'index'])->name('redemptions.packages');
+    Route::post('/redemptions/packages/{package}/redeem', [AgentPackage::class, 'redeem'])->name('packages.redeem');
+
+    // Placeholders (later sprints)
+    Route::view('/wallets',         'placeholders.agent')->name('wallets');
+    Route::view('/transactions',    'placeholders.agent')->name('transactions');
+    Route::view('/messages',        'placeholders.agent')->name('messages');
+    Route::view('/tiers',           'placeholders.agent')->name('tiers');
 });
 
 /*
@@ -92,9 +97,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/redemptions/{redemption}/approve',    [AdminRedemption::class, 'approve'])->name('redemptions.approve');
     Route::post('/redemptions/{redemption}/reject',     [AdminRedemption::class, 'reject'])->name('redemptions.reject');
 
+    // Free packages (CRUD)
+    Route::get('/packages',                       [AdminPackage::class, 'index'])->name('packages');
+    Route::get('/packages/create',                [AdminPackage::class, 'create'])->name('packages.create');
+    Route::post('/packages',                      [AdminPackage::class, 'store'])->name('packages.store');
+    Route::get('/packages/{package}/edit',        [AdminPackage::class, 'edit'])->name('packages.edit');
+    Route::put('/packages/{package}',             [AdminPackage::class, 'update'])->name('packages.update');
+    Route::patch('/packages/{package}/toggle',    [AdminPackage::class, 'toggle'])->name('packages.toggle');
+    Route::delete('/packages/{package}',          [AdminPackage::class, 'destroy'])->name('packages.destroy');
+
     // Placeholders (Sprint 3.x)
     Route::view('/agents',   'placeholders.admin')->name('agents');
-    Route::view('/packages', 'placeholders.admin')->name('packages');
     Route::view('/reports',  'placeholders.admin')->name('reports');
     Route::view('/settings', 'placeholders.admin')->name('settings');
     Route::view('/audit',    'placeholders.admin')->name('audit');
