@@ -99,18 +99,24 @@
 
                         <x-ui.table-cell>
                             @if($req->status === 'pending' && $req->type === 'cash')
-                                <div class="flex gap-1">
-                                    <form method="POST" action="{{ route('admin.redemptions.approve', $req) }}">
+                                <div class="flex items-center gap-1">
+                                    <form method="POST" action="{{ route('admin.redemptions.approve', $req) }}" class="inline">
                                         @csrf
-                                        <x-ui.button type="submit" variant="cta" size="sm" loadingText="…">موافقة</x-ui.button>
+                                        <x-ui.icon-button
+                                            type="submit"
+                                            icon="check"
+                                            variant="success"
+                                            tooltip="موافقة"
+                                        />
                                     </form>
-                                    <x-ui.button
+                                    <x-ui.icon-button
                                         type="button"
+                                        icon="x"
                                         variant="danger"
-                                        size="sm"
+                                        tooltip="رفض"
                                         :auto-loading="false"
                                         x-on:click="$dispatch('open-modal', 'reject-{{ $req->id }}')"
-                                    >رفض</x-ui.button>
+                                    />
                                 </div>
 
                                 {{-- Reject modal --}}

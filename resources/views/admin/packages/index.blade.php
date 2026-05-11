@@ -10,7 +10,7 @@
     <x-ui.card>
         <x-slot:actions>
             <x-ui.button variant="cta" size="sm" href="{{ route('admin.packages.create') }}">
-                + إضافة باكج جديد
+                <x-ui.icon name="plus" size="sm" /> إضافة باكج جديد
             </x-ui.button>
         </x-slot:actions>
 
@@ -75,26 +75,37 @@
                         </x-ui.table-cell>
 
                         <x-ui.table-cell>
-                            <div class="flex gap-1">
-                                <x-ui.button variant="ghost" size="sm" href="{{ route('admin.packages.edit', $pkg) }}">
-                                    تعديل
-                                </x-ui.button>
+                            <div class="flex items-center gap-1">
+                                <x-ui.icon-button
+                                    icon="edit"
+                                    variant="primary"
+                                    tooltip="تعديل"
+                                    href="{{ route('admin.packages.edit', $pkg) }}"
+                                />
 
-                                <form method="POST" action="{{ route('admin.packages.toggle', $pkg) }}">
+                                <form method="POST" action="{{ route('admin.packages.toggle', $pkg) }}" class="inline">
                                     @csrf
                                     @method('PATCH')
-                                    <x-ui.button type="submit" variant="ghost" size="sm">
-                                        {{ $pkg->is_active ? 'تعطيل' : 'تفعيل' }}
-                                    </x-ui.button>
+                                    <x-ui.icon-button
+                                        type="submit"
+                                        :icon="$pkg->is_active ? 'eye-off' : 'eye'"
+                                        :variant="$pkg->is_active ? 'warning' : 'success'"
+                                        :tooltip="$pkg->is_active ? 'تعطيل' : 'تفعيل'"
+                                    />
                                 </form>
 
                                 <form method="POST" action="{{ route('admin.packages.destroy', $pkg) }}"
-                                      onsubmit="return confirm('حذف الباكج «{{ $pkg->name }}»؟ لا يمكن التراجع.');">
+                                      onsubmit="return confirm('حذف الباكج «{{ $pkg->name }}»؟ لا يمكن التراجع.');"
+                                      class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <x-ui.button type="submit" variant="danger" size="sm" :auto-loading="false">
-                                        حذف
-                                    </x-ui.button>
+                                    <x-ui.icon-button
+                                        type="submit"
+                                        icon="trash"
+                                        variant="danger"
+                                        tooltip="حذف"
+                                        :auto-loading="false"
+                                    />
                                 </form>
                             </div>
                         </x-ui.table-cell>

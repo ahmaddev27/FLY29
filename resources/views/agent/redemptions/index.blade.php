@@ -78,12 +78,15 @@
 
                         <x-ui.table-cell>
                             @if($req->status === 'pending')
-                                <form method="POST" action="{{ route('agent.redemptions.cancel', $req) }}">
+                                <form method="POST" action="{{ route('agent.redemptions.cancel', $req) }}" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <x-ui.button type="submit" variant="ghost" size="sm" loadingText="جاري الإلغاء…">
-                                        إلغاء
-                                    </x-ui.button>
+                                    <x-ui.icon-button
+                                        type="submit"
+                                        icon="x"
+                                        variant="danger"
+                                        tooltip="إلغاء الطلب"
+                                    />
                                 </form>
                             @else
                                 <span class="text-xs text-[var(--color-text-muted)]">—</span>

@@ -12,6 +12,10 @@ import {
 window.Alpine = Alpine;
 Alpine.start();
 
+// Global toast helper. Anywhere in the app you can do:
+//   window.toast({ variant: 'success', message: 'تم الحفظ' });
+window.toast = (detail) => window.dispatchEvent(new CustomEvent('toast', { detail }));
+
 // Initialise Firebase (best-effort — if credentials are missing or the user is
 // not logged in, every call below becomes a no-op).
 (async () => {

@@ -63,18 +63,6 @@
             </x-layout.topbar>
 
             <main class="flex-1 px-3 sm:px-6 py-4 sm:py-6">
-                @if(session('status'))
-                    <x-ui.alert variant="success" :dismissible="true" class="mb-4">
-                        {{ session('status') }}
-                    </x-ui.alert>
-                @endif
-
-                @if($errors->any())
-                    <x-ui.alert variant="danger" :dismissible="true" class="mb-4">
-                        {{ $errors->first() }}
-                    </x-ui.alert>
-                @endif
-
                 {{ $slot }}
             </main>
         </div>

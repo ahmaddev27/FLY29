@@ -27,6 +27,26 @@
 
     {{ $slot }}
 
+    {{-- Global toaster --}}
+    <x-ui.toaster />
+
+    {{-- Session flash → toaster --}}
+    @if(session('status'))
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                window.toast({ variant: 'success', message: @json(session('status')) });
+            });
+        </script>
+    @endif
+
+    @if($errors->any())
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                window.toast({ variant: 'danger', message: @json($errors->first()), duration: 6000 });
+            });
+        </script>
+    @endif
+
     @stack('scripts')
 </body>
 </html>
