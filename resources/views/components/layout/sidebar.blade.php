@@ -20,6 +20,10 @@
     x-data="{
         collapsed: false,
         mobileOpen: false,
+        isDesktop: window.innerWidth >= 768,
+        init() {
+            window.addEventListener('resize', () => { this.isDesktop = window.innerWidth >= 768; });
+        },
         close() { this.mobileOpen = false; },
     }"
     @open-sidebar.window="mobileOpen = true"
@@ -36,16 +40,22 @@
         aria-hidden="true"
     ></div>
 
-    {{-- Sidebar --}}
+    {{-- Sidebar.
+         RTL positioning:
+           - `start-0` = right:0 in RTL → sidebar pinned to the visual right.
+           - `border-e` = sidebar's left-physical edge in RTL, separating it
+             from the main content area.
+         Visibility: explicit inline :style is used instead of Tailwind's
+         translate-x utilities because in RTL mode v4 flips their sign,
+         which makes the drawer slide in from the wrong side. --}}
     <aside
         {{ $attributes->class([
-            'flex flex-col bg-white border-s border-[var(--color-surface-border)]',
-            'fixed inset-y-0 end-0 z-40 transition-transform duration-300',
+            'flex flex-col bg-white border-e border-[var(--color-surface-border)]',
+            'fixed inset-y-0 start-0 z-40 transition-transform duration-300',
             'md:sticky md:top-0 md:h-screen',
         ]) }}
+        :style="(mobileOpen || isDesktop) ? 'transform: translateX(0)' : 'transform: translateX(100%)'"
         :class="{
-            'translate-x-0': mobileOpen,
-            'translate-x-full md:translate-x-0': !mobileOpen,
             'w-72 md:w-64': !collapsed,
             'w-72 md:w-16': collapsed,
         }"
