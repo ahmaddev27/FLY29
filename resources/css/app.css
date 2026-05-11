@@ -115,6 +115,9 @@ body {
 .font-arabic { font-family: var(--font-sans); direction: rtl; }
 .text-balance { text-wrap: balance; }
 
+/* Alpine.js: hide elements until initialized (prevents FOUC) */
+[x-cloak] { display: none !important; }
+
 /* Focus visible (a11y) */
 *:focus-visible {
     outline: 2px solid var(--color-primary-500);
