@@ -1,8 +1,8 @@
 # 📊 تتبع تطوير برنامج ولاء 29FLY
 
 > **آخر تحديث:** 2026-05-11
-> **المرحلة الحالية:** 🟢 Phase 1 — MVP Core (Sprint 1.1 ✅)
-> **التقدم الإجمالي:** ▓▓▓░░░░░░░ 23% (83/363)
+> **المرحلة الحالية:** 🟢 Phase 1 — MVP Core (Sprint 1.1 ✅ + Sprint 1.2 ✅)
+> **التقدم الإجمالي:** ▓▓▓░░░░░░░ 32% (115/363)
 
 ---
 
@@ -22,7 +22,7 @@
 
 ```
 Phase 0  Foundation         ▓▓▓▓▓▓▓▓▓▓ 100% ✅ (40/40)
-Phase 1  MVP Core           ▓▓▓▓░░░░░░  45% 🚧 (43/95)
+Phase 1  MVP Core           ▓▓▓▓▓▓▓▓░░  79% 🚧 (75/95) — Sprint 1.1 + 1.2 done
 Phase 2  Wallets+Redemption ░░░░░░░░░░  0%   (0/75)
 Phase 3  Admin Panel        ░░░░░░░░░░  0%   (0/80)
 Phase 4  AM Panel+Reports   ░░░░░░░░░░  0%   (0/45)
@@ -97,10 +97,56 @@ Phase 6  Launch             ░░░░░░░░░░  0%   (0/10)
 
 ---
 
+## ✅ Sprint 1.2 — Webhook & Points Engine (مكتمل اليوم!)
+
+**32 مهمة منجزة (T-084 → T-113) + 3 إضافية:**
+
+### Middlewares (3):
+- `WebhookAuth` — constant-time API key check + masked logging.
+- `VerifyHmacSignature` — raw-body HMAC-SHA256 + togglable via setting.
+- `ApiLog` — kicks request/response to `api_logs` table (sensitive headers masked).
+
+### Services & Actions (6):
+- `IdempotencyService` — unique reference_id guard.
+- `PointsCalculationService` — package-based + amount-based + service=1pt + pending fraction carry.
+- `WalletService` — credit/debit/lockPoints/unlockPoints/finalizeLocked (all DB-locked).
+- `TierService` — countPackagesInWindow + applyUpgradeIfQualified (sync upgrade only).
+- `IngestTransactionAction` — single transaction orchestrator covering 6 step flow.
+
+### HTTP layer:
+- `WebhookController` (ingest + health).
+- `IngestTransactionRequest` (FormRequest → 422 JSON envelope).
+- `routes/api.php` registered via `bootstrap/app.php`.
+- Rate limiter `webhook` (100/min/api-key) in AppServiceProvider.
+- DTO `PointsCalculationResult` (readonly, snapshot ready).
+
+### Tests — **13 Feature tests, all green** in 1.08s:
+1. Successful webhook + dual-wallet credit
+2. Duplicate reference_id → duplicate_ignored
+3. Invalid HMAC → 401
+4. Missing API key → 401
+5. Unknown agent → 404
+6. Suspended agent → held in pending_transactions
+7. Validation failure → 422
+8. Tier upgrade Silver → Gold at 20 packages
+9. Amount-based mode stores fraction
+10. Config snapshot persisted with txn
+11. Service txn = 1pt regardless of tier
+12. Points history records each credit
+13. Public health endpoint
+
+### Deliverables for Main Site team:
+- `docs/api-webhook.md` (developer quick start)
+- `docs/postman/29fly-loyalty-webhook.postman_collection.json` (auto-HMAC pre-request)
+
+### Verified manually:
+- Real HTTP roundtrip with `curl` + valid HMAC → 200 accepted.
+- Duplicate → 200 duplicate_ignored. Invalid sig → 401. Unknown agent → 404.
+
 ## 🔄 قيد العمل الآن
 
-**التالي:** Sprint 1.2 — Webhook & Points Engine (T-084 → T-113)
-- 30 مهمة: WebhookController، HMAC verification، Idempotency، PointsCalculation، WalletService، Tier upgrade sync، Feature Tests شاملة، Mock webhook.
+**التالي:** Sprint 1.3 — Agent Dashboard (T-114 → T-138)
+- 25 مهمة: agent layout + tier card + wallet cards + KPIs + dashboard service + profile + notification preferences + E2E test.
 
 ---
 

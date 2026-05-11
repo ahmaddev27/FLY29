@@ -1,0 +1,169 @@
+{
+    "info": {
+        "name": "29FLY Loyalty — Webhook API",
+        "description": "Collection for testing the Loyalty system's webhook endpoints. Pre-request script auto-computes HMAC-SHA256 signature.\n\n**Setup:**\n1. Create an environment with variables: `base_url`, `api_key`, `webhook_secret`.\n2. Each request uses the pre-request script to sign the body.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health Check (public)",
+            "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/health",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "health"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Ingest Transaction — Package (success)",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "// Build payload",
+                            "const payload = {",
+                            "    agent_id: 'AGT-TEST-001',",
+                            "    transaction_type: 'package',",
+                            "    amount_usd: 1500.00,",
+                            "    destination: 'Thailand',",
+                            "    transaction_date: new Date().toISOString(),",
+                            "    reference_id: 'TXN-MAIN-' + Date.now()",
+                            "};",
+                            "pm.environment.set('body', JSON.stringify(payload));",
+                            "",
+                            "// Compute HMAC-SHA256 signature",
+                            "const secret = pm.environment.get('webhook_secret');",
+                            "const hash = CryptoJS.HmacSHA256(JSON.stringify(payload), secret).toString();",
+                            "pm.environment.set('signature', 'sha256=' + hash);"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type",  "value": "application/json"},
+                    {"key": "X-API-Key",     "value": "{{api_key}}"},
+                    {"key": "X-Signature",   "value": "{{signature}}"},
+                    {"key": "Accept",        "value": "application/json"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{{body}}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/transactions/ingest",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "transactions", "ingest"]
+                }
+            }
+        },
+        {
+            "name": "Ingest Transaction — Service",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "const payload = {",
+                            "    agent_id: 'AGT-TEST-001',",
+                            "    transaction_type: 'service',",
+                            "    amount_usd: 250.00,",
+                            "    transaction_date: new Date().toISOString(),",
+                            "    reference_id: 'TXN-SVC-' + Date.now()",
+                            "};",
+                            "pm.environment.set('body', JSON.stringify(payload));",
+                            "const secret = pm.environment.get('webhook_secret');",
+                            "const hash = CryptoJS.HmacSHA256(JSON.stringify(payload), secret).toString();",
+                            "pm.environment.set('signature', 'sha256=' + hash);"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type",  "value": "application/json"},
+                    {"key": "X-API-Key",     "value": "{{api_key}}"},
+                    {"key": "X-Signature",   "value": "{{signature}}"}
+                ],
+                "body": {"mode": "raw", "raw": "{{body}}"},
+                "url": {
+                    "raw": "{{base_url}}/api/v1/transactions/ingest",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "transactions", "ingest"]
+                }
+            }
+        },
+        {
+            "name": "Duplicate reference_id (idempotency)",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "const payload = {",
+                            "    agent_id: 'AGT-TEST-001',",
+                            "    transaction_type: 'package',",
+                            "    amount_usd: 500.00,",
+                            "    transaction_date: '2026-05-11T10:00:00Z',",
+                            "    reference_id: 'TXN-FIXED-IDEMPOTENCY-001'   // run twice — second is duplicate",
+                            "};",
+                            "pm.environment.set('body', JSON.stringify(payload));",
+                            "const secret = pm.environment.get('webhook_secret');",
+                            "const hash = CryptoJS.HmacSHA256(JSON.stringify(payload), secret).toString();",
+                            "pm.environment.set('signature', 'sha256=' + hash);"
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type",  "value": "application/json"},
+                    {"key": "X-API-Key",     "value": "{{api_key}}"},
+                    {"key": "X-Signature",   "value": "{{signature}}"}
+                ],
+                "body": {"mode": "raw", "raw": "{{body}}"},
+                "url": {
+                    "raw": "{{base_url}}/api/v1/transactions/ingest",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "transactions", "ingest"]
+                }
+            }
+        },
+        {
+            "name": "Invalid Signature (expect 401)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {"key": "Content-Type",  "value": "application/json"},
+                    {"key": "X-API-Key",     "value": "{{api_key}}"},
+                    {"key": "X-Signature",   "value": "sha256=invalid_signature_for_testing"}
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"agent_id\":\"AGT-TEST-001\",\"transaction_type\":\"package\",\"amount_usd\":100,\"transaction_date\":\"2026-05-11T10:00:00Z\",\"reference_id\":\"TXN-INVALID-001\"}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/transactions/ingest",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "transactions", "ingest"]
+                }
+            }
+        }
+    ],
+    "variable": [
+        {"key": "base_url",       "value": "http://localhost:8000"},
+        {"key": "api_key",        "value": "test_key_dev_only_12345"},
+        {"key": "webhook_secret", "value": "test_secret_dev_only_67890"}
+    ]
+}

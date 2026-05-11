@@ -117,36 +117,37 @@
 
 ### Sprint 1.2: Webhook & Points Engine — أسبوع
 
-- [ ] **T-084** — `Api\V1\WebhookController` class.
-- [ ] **T-085** — Route: `POST /api/v1/transactions/ingest` (في `routes/api.php`).
-- [ ] **T-086** — Middleware `WebhookAuth`: التحقق من `X-API-Key` مع DB lookup (constant-time).
-- [ ] **T-087** — Middleware `VerifyHmacSignature`: حساب HMAC-SHA256 ومقارنته.
-- [ ] **T-088** — `IngestTransactionRequest` FormRequest (validation كاملة).
-- [ ] **T-089** — `IdempotencyCheckService`: استعلام `reference_id` UNIQUE.
-- [ ] **T-090** — `SettingsService`: قراءة من `system_settings` مع File Cache (TTL 5 دقائق).
-- [ ] **T-091** — `PointsCalculationService::calculatePackageBased()` (Tier × type).
-- [ ] **T-092** — `PointsCalculationService::calculateAmountBased()` (floor + pending_amount).
-- [ ] **T-093** — Config Snapshot logic: تجميع JSON من الإعدادات النشطة لحظة المعاملة.
-- [ ] **T-094** — `WalletService::credit($agentId, $wallet, $points, $source)` داخل DB Transaction.
-- [ ] **T-095** — `WalletService::debit($agentId, $wallet, $points, $source)`.
-- [ ] **T-096** — `WalletService::lockPoints($agentId, $wallet, $points)`.
-- [ ] **T-097** — `WalletService::unlockPoints($agentId, $wallet, $points)`.
-- [ ] **T-098** — `IngestTransactionAction` (orchestrator): يستدعي كل الخطوات بـ DB Transaction.
-- [ ] **T-099** — `TierService::evaluateTier($agentId)`: حساب الباكجات في النافذة + مقارنة.
-- [ ] **T-100** — `TierService::upgradeTier($agentId, $newTier)`: تحديث + tier_history + إشعار.
-- [ ] **T-101** — Middleware `ApiLog`: تسجيل كل request/response في `api_logs`.
-- [ ] **T-102** — Webhook response formatter (موحّد JSON).
-- [ ] **T-103** — Error handling: 401/422/500 مع رسائل مناسبة.
-- [ ] **T-104** — Rate Limiting على webhook: 100 req/min/key.
-- [ ] **T-105** — Feature Test: webhook ناجح + verify points + verify wallet update.
-- [ ] **T-106** — Feature Test: `reference_id` مكرر → `duplicate_ignored`.
-- [ ] **T-107** — Feature Test: HMAC خاطئ → 401.
-- [ ] **T-108** — Feature Test: Agent معلق → 422.
-- [ ] **T-109** — Feature Test: Tier upgrade عند تخطي العتبة.
-- [ ] **T-110** — Feature Test: amount_based يحفظ الكسر في `pending_amount`.
-- [ ] **T-111** — Feature Test: config_snapshot يُخزّن بالصيغة الصحيحة.
-- [ ] **T-112** — Postman Collection + Mock webhook لاختبار يدوي.
-- [ ] **T-113** — توثيق `/docs/api-webhook.md` للمبرمج الخارجي.
+- [x] **T-084** — `Api\V1\WebhookController` (ingest + health). ✅
+- [x] **T-085** — `routes/api.php` مع `apiPrefix: 'api'` + middleware chain. ✅
+- [x] **T-086** — `WebhookAuth` middleware (constant-time API key check + masked log). ✅
+- [x] **T-087** — `VerifyHmacSignature` middleware (raw-body HMAC-SHA256 + togglable). ✅
+- [x] **T-088** — `IngestTransactionRequest` FormRequest (returns 422 JSON envelope). ✅
+- [x] **T-089** — `IdempotencyService` (findExisting + isDuplicate). ✅
+- [x] **T-090** — `SettingsService` (مُنجز Sprint 1.1). ✅
+- [x] **T-091** — `PointsCalculationService::calculatePackageBased()`. ✅
+- [x] **T-092** — `PointsCalculationService::calculateAmountBased()` (مع pending_amount carry-over). ✅
+- [x] **T-093** — Config Snapshot عبر `PointsCalculationResult::toSnapshot()`. ✅
+- [x] **T-094** — `WalletService::credit()` مع DB lock + history. ✅
+- [x] **T-095** — `WalletService::debit()` + `finalizeLocked()`. ✅
+- [x] **T-096** — `WalletService::lockPoints()` (available→locked). ✅
+- [x] **T-097** — `WalletService::unlockPoints()` (locked→available). ✅
+- [x] **T-098** — `IngestTransactionAction` orchestrator (DB transactional). ✅
+- [x] **T-099** — `TierService::evaluateQualifyingTier()` + `countPackagesInWindow()`. ✅
+- [x] **T-100** — `TierService::applyUpgradeIfQualified()` + history + sync ترقية. ✅
+- [x] **T-101** — `ApiLog` middleware (مع mask للـ sensitive headers). ✅
+- [x] **T-102** — Webhook response formatter (match expression لكل status). ✅
+- [x] **T-103** — Error handling: 401/404/422/500 مع رسائل واضحة. ✅
+- [x] **T-104** — Rate Limit: `throttle:webhook` (100/min/api-key) من AppServiceProvider. ✅
+- [x] **T-105** — Feature Test: successful webhook + dual-wallet credit. ✅
+- [x] **T-106** — Feature Test: duplicate reference_id. ✅
+- [x] **T-107** — Feature Test: invalid HMAC → 401 + missing API key → 401. ✅
+- [x] **T-108** — Feature Test: suspended agent → 422 + held in pending_transactions. ✅
+- [x] **T-109** — Feature Test: tier upgrade (Silver→Gold at 20 packages). ✅
+- [x] **T-110** — Feature Test: amount_based mode + pending fraction. ✅
+- [x] **T-111** — Feature Test: config_snapshot stored correctly. ✅
+- [x] **+3 extra:** service=1pt, points_history both wallets, health endpoint. ✅
+- [x] **T-112** — Postman Collection (`docs/postman/29fly-loyalty-webhook.postman_collection.json`) مع auto-HMAC pre-request script. ✅
+- [x] **T-113** — `docs/api-webhook.md` Developer Quick Start. ✅
 
 ### Sprint 1.3: Agent Dashboard — أسبوع
 

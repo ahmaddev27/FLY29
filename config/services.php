@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Main 29FLY Site Integration
+    |--------------------------------------------------------------------------
+    */
+    'main_site' => [
+        'api_key'         => env('MAIN_SITE_API_KEY', ''),
+        'webhook_secret'  => env('MAIN_SITE_WEBHOOK_SECRET', ''),
+        'base_url'        => env('MAIN_SITE_BASE_URL', 'https://fly29.net'),
+        'bearer_token'    => env('MAIN_SITE_BEARER_TOKEN', ''),
+    ],
+
 ];
