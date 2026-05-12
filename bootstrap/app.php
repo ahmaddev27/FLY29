@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook.log'       => \App\Http\Middleware\ApiLog::class,
             'agent'             => \App\Http\Middleware\EnsureAgent::class,
             'admin'             => \App\Http\Middleware\EnsureAdmin::class,
+            'manager'           => \App\Http\Middleware\EnsureAccountManager::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
