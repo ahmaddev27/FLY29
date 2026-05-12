@@ -5,8 +5,8 @@
     <title>سجل النقاط — {{ $agent->business_name }}</title>
     <style>
         @page { margin: 1.2cm; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #222; direction: rtl; }
-        h1   { margin: 0 0 4px; font-size: 18px; color: #0066CC; }
+        body { font-family: cairo, DejaVu Sans, sans-serif; font-size: 11px; color: #222; direction: rtl; }
+        h1   { margin: 0 0 4px; font-size: 18px; color: #0066CC; font-weight: bold; }
         .meta { font-size: 10px; color: #666; margin-bottom: 16px; }
         .meta strong { color: #222; }
         table { width: 100%; border-collapse: collapse; }
@@ -17,13 +17,14 @@
         .points { color: #047857; font-weight: bold; }
         .footer { margin-top: 12px; font-size: 9px; color: #999; text-align: center; }
         .empty  { padding: 30px; text-align: center; color: #666; }
+        .ltr   { direction: ltr; unicode-bidi: embed; display: inline-block; }
     </style>
 </head>
 <body>
     <h1>سجل النقاط</h1>
     <div class="meta">
-        <div><strong>الوكيل:</strong> {{ $agent->business_name }} — {{ $agent->external_agent_id }}</div>
-        <div><strong>تاريخ التقرير:</strong> {{ $generatedAt->format('Y-m-d H:i') }}</div>
+        <div><strong>الوكيل:</strong> {{ $agent->business_name }} — <span class="ltr">{{ $agent->external_agent_id }}</span></div>
+        <div><strong>تاريخ التقرير:</strong> <span class="ltr">{{ $generatedAt->format('Y-m-d H:i') }}</span></div>
         @if(!empty($filters['from']) || !empty($filters['to']))
             <div><strong>الفترة:</strong>
                 {{ $filters['from'] ?? '...' }} → {{ $filters['to'] ?? '...' }}
@@ -51,16 +52,16 @@
             <tbody>
                 @foreach($transactions as $txn)
                     <tr>
-                        <td>{{ $txn->transaction_date->format('Y-m-d H:i') }}</td>
+                        <td><span class="ltr">{{ $txn->transaction_date->format('Y-m-d H:i') }}</span></td>
                         <td>
                             <span class="{{ $txn->transaction_type === 'package' ? 'badge-pkg' : 'badge-svc' }}">
                                 {{ $txn->transaction_type === 'package' ? 'باكج' : 'خدمة' }}
                             </span>
                         </td>
                         <td>{{ $txn->destination ?? '—' }}</td>
-                        <td>${{ number_format($txn->amount_usd, 2) }}</td>
-                        <td class="points">+{{ $txn->points_awarded }}</td>
-                        <td>{{ $txn->reference_id }}</td>
+                        <td><span class="ltr">${{ number_format($txn->amount_usd, 2) }}</span></td>
+                        <td class="points"><span class="ltr">+{{ $txn->points_awarded }}</span></td>
+                        <td><span class="ltr">{{ $txn->reference_id }}</span></td>
                     </tr>
                 @endforeach
             </tbody>

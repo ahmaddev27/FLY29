@@ -7,7 +7,15 @@
         ['label' => 'جديد'],
     ]"
 >
-    <form method="POST" action="{{ route('admin.announcements.store') }}" x-data="{ variant: 'info' }">
+    <form
+        method="POST"
+        action="{{ route('admin.announcements.store') }}"
+        x-data="{
+            variant: 'info',
+            title: '',
+            body: '',
+        }"
+    >
         @csrf
 
         <div class="grid lg:grid-cols-3 gap-6">
@@ -17,21 +25,50 @@
                 <x-ui.card title="محتوى الإعلان">
                     <div class="space-y-4">
                         <x-forms.form-group label="العنوان" for="title" required>
-                            <x-ui.input id="title" name="title" :value="old('title')" maxlength="200" required placeholder="مثال: ترقية جديدة للنظام يوم الجمعة" />
+                            <x-ui.input
+                                id="title"
+                                name="title"
+                                :value="old('title')"
+                                maxlength="200"
+                                required
+                                placeholder="مثال: ترقية جديدة للنظام يوم الجمعة"
+                                x-model="title"
+                            />
                         </x-forms.form-group>
 
                         <x-forms.form-group label="النص" for="body" required hint="حد أقصى 5000 حرف">
-                            <x-ui.textarea id="body" name="body" rows="8" required maxlength="5000" placeholder="اشرح التفاصيل هنا...">{{ old('body') }}</x-ui.textarea>
+                            <x-ui.textarea
+                                id="body"
+                                name="body"
+                                rows="8"
+                                required
+                                maxlength="5000"
+                                placeholder="اشرح التفاصيل هنا..."
+                                x-model="body"
+                            >{{ old('body') }}</x-ui.textarea>
                         </x-forms.form-group>
 
-                        <x-forms.form-group label="نوع الإعلان (لون البانر والإيميل)" for="variant" required>
-                            <x-ui.select
-                                id="variant"
-                                name="variant"
-                                :options="['info' => 'معلومة (أزرق)', 'success' => 'نجاح (أخضر)', 'warning' => 'تنبيه (برتقالي)', 'danger' => 'تحذير (أحمر)']"
-                                selected="info"
-                                x-on:change="variant = $event.target.value"
-                            />
+                        <x-forms.form-group label="نوع الإعلان (لون البانر والإيميل)" required>
+                            {{-- Visual variant picker — 4 colour chips --}}
+                            <input type="hidden" name="variant" x-model="variant">
+                            <div class="grid grid-cols-4 gap-2">
+                                @foreach([
+                                    'info'    => ['label' => 'معلومة', 'cls' => 'bg-sky-500'],
+                                    'success' => ['label' => 'نجاح',    'cls' => 'bg-emerald-500'],
+                                    'warning' => ['label' => 'تنبيه',   'cls' => 'bg-amber-500'],
+                                    'danger'  => ['label' => 'تحذير',   'cls' => 'bg-rose-500'],
+                                ] as $key => $vMeta)
+                                    <button
+                                        type="button"
+                                        x-on:click="variant = @js($key)"
+                                        :class="variant === @js($key) ? 'ring-2 ring-offset-2 ring-slate-400 scale-[1.02]' : 'opacity-70 hover:opacity-100'"
+                                        class="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-white border border-slate-200 transition-all"
+                                    >
+                                        <span class="w-6 h-6 rounded-full {{ $vMeta['cls'] }}"></span>
+                                        <span class="text-xs font-medium text-slate-700">{{ $vMeta['label'] }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
                         </x-forms.form-group>
 
                         <x-forms.form-group label="تاريخ انتهاء (اختياري)" for="expires_at" hint="إذا فاضي، يظل ظاهر حتى توقفه يدوياً">
@@ -41,18 +78,30 @@
                 </x-ui.card>
 
                 {{-- Live preview --}}
-                <x-ui.card title="معاينة البانر">
+                <x-ui.card title="معاينة مباشرة" subtitle="يتحدّث أثناء الكتابة">
                     <div
-                        class="rounded-lg p-4 border-s-4"
+                        class="rounded-lg p-4 border-s-4 transition-colors"
                         :class="{
-                            'border-sky-400 bg-sky-50': variant === 'info',
+                            'border-sky-400 bg-sky-50':         variant === 'info',
                             'border-emerald-400 bg-emerald-50': variant === 'success',
-                            'border-amber-400 bg-amber-50': variant === 'warning',
-                            'border-rose-400 bg-rose-50': variant === 'danger',
+                            'border-amber-400 bg-amber-50':     variant === 'warning',
+                            'border-rose-400 bg-rose-50':       variant === 'danger',
                         }"
                     >
-                        <p class="font-bold text-slate-900" x-text="document.getElementById('title')?.value || 'عنوان الإعلان'"></p>
-                        <p class="text-sm text-slate-700 mt-1 whitespace-pre-wrap" x-text="document.getElementById('body')?.value || 'سيظهر النص هنا...'"></p>
+                        <p
+                            class="font-bold transition-colors"
+                            :class="{
+                                'text-sky-900':     variant === 'info',
+                                'text-emerald-900': variant === 'success',
+                                'text-amber-900':   variant === 'warning',
+                                'text-rose-900':    variant === 'danger',
+                            }"
+                            x-text="title.trim() || 'عنوان الإعلان'"
+                        ></p>
+                        <p
+                            class="text-sm text-slate-700 mt-1 leading-relaxed whitespace-pre-wrap"
+                            x-text="body.trim() || 'سيظهر النص هنا أثناء الكتابة...'"
+                        ></p>
                     </div>
                 </x-ui.card>
             </div>

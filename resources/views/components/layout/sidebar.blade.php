@@ -86,7 +86,19 @@
             <ul class="space-y-1.5">
                 @foreach($items as $item)
                     @php
-                        $isActive = $item['active'] ?? ($currentRoute && ($item['route'] ?? '') === $currentRoute);
+                        // Active when the current route equals the item's route OR is a
+                        // child route of it (e.g. 'admin.agents.show' matches 'admin.agents').
+                        $itemRoute = $item['route'] ?? null;
+                        $isActive  = $item['active']
+                            ?? (
+                                $currentRoute
+                                && $itemRoute
+                                && (
+                                    $currentRoute === $itemRoute
+                                    || str_starts_with($currentRoute, $itemRoute . '.')
+                                )
+                            );
+
                         $href = isset($item['route'])
                             ? (\Illuminate\Support\Facades\Route::has($item['route']) ? route($item['route']) : '#')
                             : ($item['href'] ?? '#');

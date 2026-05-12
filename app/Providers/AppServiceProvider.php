@@ -17,6 +17,37 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiters();
+        $this->registerPdfArabicFont();
+    }
+
+    /**
+     * Make the Cairo font (shipped in storage/fonts) available to dompdf so
+     * Arabic glyphs render with proper shaping in PDF exports.
+     */
+    private function registerPdfArabicFont(): void
+    {
+        $regular = storage_path('fonts/Cairo-Regular.ttf');
+        $bold    = storage_path('fonts/Cairo-Bold.ttf');
+
+        if (! file_exists($regular)) {
+            return;
+        }
+
+        // Register with the global Dompdf FontMetrics on first use.
+        // We do this lazily because Dompdf may not be loaded on every request.
+        $this->app->resolving(\Barryvdh\DomPDF\PDF::class, function ($pdf) use ($regular, $bold) {
+            $fontMetrics = $pdf->getDomPDF()->getFontMetrics();
+            $fontMetrics->registerFont(
+                ['family' => 'cairo', 'style' => 'normal', 'weight' => 'normal'],
+                $regular,
+            );
+            if (file_exists($bold)) {
+                $fontMetrics->registerFont(
+                    ['family' => 'cairo', 'style' => 'normal', 'weight' => 'bold'],
+                    $bold,
+                );
+            }
+        });
     }
 
     /**

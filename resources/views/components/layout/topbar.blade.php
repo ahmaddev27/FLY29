@@ -23,15 +23,27 @@
     {{-- Page title + breadcrumbs --}}
     <div class="min-w-0 flex-1">
         @if(!empty($breadcrumbs))
-            <nav class="hidden sm:flex items-center gap-2 text-xs text-[var(--color-text-secondary)] mb-1" aria-label="مسار التنقل">
+            <nav class="hidden sm:flex items-center gap-1.5 text-xs mb-1.5" aria-label="مسار التنقل">
+                {{-- Home icon as the very first crumb --}}
+                <a href="{{ url('/') }}" class="w-6 h-6 rounded-md text-slate-400 hover:text-[var(--color-primary-600)] hover:bg-slate-100 flex items-center justify-center transition-colors" aria-label="الرئيسية">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                </a>
+
                 @foreach($breadcrumbs as $i => $crumb)
+                    {{-- Chevron separator (rotated for RTL — points start) --}}
+                    <svg class="w-3 h-3 text-slate-300 flex-shrink-0 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+
                     @if(!empty($crumb['href']))
-                        <a href="{{ $crumb['href'] }}" class="hover:text-[var(--color-primary-500)] transition-base">{{ $crumb['label'] }}</a>
+                        <a
+                            href="{{ $crumb['href'] }}"
+                            class="px-2 py-1 rounded-md text-slate-500 hover:text-[var(--color-primary-600)] hover:bg-slate-100 transition-colors font-medium"
+                        >{{ $crumb['label'] }}</a>
                     @else
-                        <span class="text-[var(--color-text-primary)]">{{ $crumb['label'] }}</span>
-                    @endif
-                    @if($i < count($breadcrumbs) - 1)
-                        <span class="text-[var(--color-text-muted)]">/</span>
+                        <span class="px-2 py-1 rounded-md text-[var(--color-primary-700)] bg-[var(--color-primary-50)] font-semibold">{{ $crumb['label'] }}</span>
                     @endif
                 @endforeach
             </nav>
