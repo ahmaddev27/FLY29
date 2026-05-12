@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\AccountManagerController;
 use App\Http\Controllers\Admin\AdjustmentController;
 use App\Http\Controllers\Admin\AgentController;
+use App\Http\Controllers\Admin\ApiLogController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\RedemptionController;
@@ -100,7 +102,13 @@ Route::middleware(['auth', 'admin'])
                 Route::post('/{adjustment}/cancel',   'cancel')->name('.cancel');
             });
 
+        // Audit log (super_admin only — enforced inside controller)
+        Route::get('/audit',     [AuditLogController::class, 'index'])->name('audit');
+
+        // Webhook / API request logs
+        Route::get('/api-logs',           [ApiLogController::class, 'index'])->name('api-logs');
+        Route::get('/api-logs/{log}',     [ApiLogController::class, 'show'])->name('api-logs.show');
+
         // Placeholders (real pages to come)
         Route::view('/reports',  'placeholders.admin')->name('reports');
-        Route::view('/audit',    'placeholders.admin')->name('audit');
     });

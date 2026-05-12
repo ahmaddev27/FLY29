@@ -29,6 +29,7 @@
         ['label' => 'الباكجات',     'route' => 'admin.packages',          'icon' => $iconPackages],
         ['label' => 'التقارير',     'route' => 'admin.reports',           'icon' => $iconReports],
         ['label' => 'الإعدادات',    'route' => 'admin.settings',          'icon' => $iconSettings],
+        ['label' => 'سجل API',      'route' => 'admin.api-logs',          'icon' => $iconAudit],
         ['label' => 'سجل التدقيق',   'route' => 'admin.audit',             'icon' => $iconAudit],
     ];
 @endphp
