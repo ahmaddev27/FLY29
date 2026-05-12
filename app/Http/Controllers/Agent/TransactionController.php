@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Agent;
 
 use App\Exports\TransactionsExport;
 use App\Http\Controllers\Controller;
+use App\Services\PdfService;
 use App\Services\TransactionQueryService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
@@ -95,7 +95,7 @@ class TransactionController extends Controller
     /**
      * PDF export (RTL).
      */
-    public function exportPdf(Request $request): Response
+    public function exportPdf(Request $request, PdfService $pdf): Response
     {
         $agent   = $request->user()->agent;
         $filters = $this->parseFilters($request);
@@ -103,14 +103,14 @@ class TransactionController extends Controller
 
         $transactions = $query->limit(self::STREAM_THRESHOLD)->get();
 
-        $pdf = Pdf::loadView('agent.transactions.pdf', [
+        $html = view('agent.transactions.pdf', [
             'agent'        => $agent,
             'transactions' => $transactions,
             'filters'      => $filters,
             'generatedAt'  => now(),
-        ])->setPaper('a4', 'portrait');
+        ])->render();
 
-        return $pdf->download('transactions-' . now()->format('Y-m-d-His') . '.pdf');
+        return $pdf->downloadArabic($html, 'transactions-' . now()->format('Y-m-d-His') . '.pdf');
     }
 
     /*
