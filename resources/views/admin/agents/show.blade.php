@@ -63,6 +63,15 @@
 
                 {{-- Actions --}}
                 <div class="mt-4 space-y-2">
+                    <x-ui.button
+                        variant="primary"
+                        :full="true"
+                        :auto-loading="false"
+                        x-on:click="$dispatch('open-modal', 'adjust-wallet-{{ $agent->id }}')"
+                    >
+                        <x-ui.icon name="edit" size="sm" /> تعديل يدوي للنقاط
+                    </x-ui.button>
+
                     @if($agent->user && $agent->user->status === 'active')
                         <x-ui.button
                             variant="warning"
@@ -256,5 +265,67 @@
             </form>
         </x-ui.modal>
     @endif
+
+    {{-- Adjust-wallet modal (manual adjustment with dual-approval gate) --}}
+    @php
+        $threshold = (int) app(\App\Services\SettingsService::class)->get('dual_approval_threshold', 500);
+    @endphp
+    <x-ui.modal :name="'adjust-wallet-' . $agent->id" title="تعديل يدوي لنقاط {{ $agent->business_name }}" size="md">
+        <form method="POST" action="{{ route('admin.adjustments.store', $agent) }}" x-data="{ delta: 0 }">
+            @csrf
+
+            <div class="mb-3 p-3 rounded-lg bg-sky-50 border border-sky-100 text-sm text-sky-900">
+                <p class="flex items-center gap-2">
+                    <x-ui.icon name="alert-triangle" size="sm" />
+                    <span>الحد الحالي للموافقة المزدوجة: <strong class="font-latin">{{ number_format($threshold) }}</strong> نقطة. أي تعديل أكبر من هذا الرقم يحتاج موافقة سوبر أدمن.</span>
+                </p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <x-forms.form-group label="المحفظة" for="wallet_type" required>
+                    <x-ui.select id="wallet_type" name="wallet_type" :options="['cash' => 'كاش', 'package' => 'باكجات']" />
+                </x-forms.form-group>
+
+                <x-forms.form-group label="عدد النقاط (موجب = إضافة، سالب = خصم)" for="points_delta" required>
+                    <x-ui.input
+                        type="number"
+                        id="points_delta"
+                        name="points_delta"
+                        step="1"
+                        required
+                        placeholder="مثال: 100 أو -50"
+                        x-model.number="delta"
+                    />
+                </x-forms.form-group>
+            </div>
+
+            <x-forms.form-group label="السبب" for="adj_reason" required class="mt-4">
+                <x-ui.textarea id="adj_reason" name="reason" rows="3" required placeholder="مكافأة، تعويض عن خطأ، تصحيح، ..." />
+            </x-forms.form-group>
+
+            {{-- Impact preview --}}
+            <div
+                x-show="delta !== 0"
+                x-cloak
+                x-transition.opacity
+                class="mt-3 p-3 rounded-lg text-sm"
+                :class="Math.abs(delta) > {{ $threshold }}
+                    ? 'bg-amber-50 border border-amber-200 text-amber-900'
+                    : 'bg-emerald-50 border border-emerald-200 text-emerald-900'"
+            >
+                <p x-show="Math.abs(delta) <= {{ $threshold }}" x-cloak>
+                    ✓ سيتم تطبيق التعديل فوراً (ضمن الحد المسموح).
+                </p>
+                <p x-show="Math.abs(delta) > {{ $threshold }}" x-cloak>
+                    ⚠ هذا التعديل (<span x-text="Math.abs(delta).toLocaleString()" class="font-latin font-bold"></span> نقطة) أكبر من الحد. سيُرسل لقائمة الموافقة ولن يتغير الرصيد حتى يوافق سوبر أدمن.
+                </p>
+            </div>
+
+            <x-slot:footer>
+                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'adjust-wallet-{{ $agent->id }}')">إلغاء</x-ui.button>
+                <x-ui.button type="submit" variant="cta">حفظ التعديل</x-ui.button>
+            </x-slot:footer>
+        </form>
+    </x-ui.modal>
 
 </x-layouts.admin>

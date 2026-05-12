@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdjustmentController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PackageController;
@@ -69,6 +70,18 @@ Route::middleware(['auth', 'admin'])
         // Settings
         Route::get('/settings',    [SettingsController::class, 'index'])->name('settings');
         Route::patch('/settings',  [SettingsController::class, 'update'])->name('settings.update');
+
+        // Manual adjustments (with dual approval over threshold)
+        Route::controller(AdjustmentController::class)
+            ->prefix('adjustments')
+            ->name('adjustments')
+            ->group(function () {
+                Route::get('/',                       'index');
+                Route::post('/agent/{agent}',         'store')->name('.store');
+                Route::post('/{adjustment}/approve',  'approve')->name('.approve');
+                Route::post('/{adjustment}/reject',   'reject')->name('.reject');
+                Route::post('/{adjustment}/cancel',   'cancel')->name('.cancel');
+            });
 
         // Placeholders (real pages to come)
         Route::view('/reports',  'placeholders.admin')->name('reports');
