@@ -33,41 +33,41 @@
         </div>
     </div>
 
-    {{-- ============ Charts (Sales + Agents + Tiers) ============ --}}
-    <div class="grid lg:grid-cols-3 gap-4 mb-6">
+    {{-- ============ Charts (Sales + Tiers) ============ --}}
+    <div class="grid md:grid-cols-3 gap-4 mb-6">
 
-        {{-- Sales growth (line, 2/3 width) --}}
-        <div class="bg-white rounded-xl p-5 shadow-sm lg:col-span-2">
+        {{-- Sales growth (line, 2/3 on md+) --}}
+        <div class="bg-white rounded-xl p-5 shadow-sm md:col-span-2 min-w-0">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="font-semibold text-slate-900">نمو المبيعات</h3>
                     <p class="text-xs text-slate-500">آخر 12 شهر</p>
                 </div>
             </div>
-            <div class="h-64">
+            <div class="relative h-64 w-full">
                 <canvas id="salesChart"></canvas>
             </div>
         </div>
 
-        {{-- Tier distribution (doughnut, 1/3 width) --}}
-        <div class="bg-white rounded-xl p-5 shadow-sm">
+        {{-- Tier distribution (doughnut) --}}
+        <div class="bg-white rounded-xl p-5 shadow-sm min-w-0">
             <div class="mb-4">
                 <h3 class="font-semibold text-slate-900">توزيع التصنيفات</h3>
                 <p class="text-xs text-slate-500">حسب التصنيف الحالي</p>
             </div>
-            <div class="h-64 flex items-center justify-center">
+            <div class="relative h-64 w-full">
                 <canvas id="tiersChart"></canvas>
             </div>
         </div>
     </div>
 
     {{-- ============ Agent growth chart (full width) ============ --}}
-    <div class="bg-white rounded-xl p-5 shadow-sm mb-6">
+    <div class="bg-white rounded-xl p-5 shadow-sm mb-6 min-w-0">
         <div class="mb-4">
             <h3 class="font-semibold text-slate-900">نمو قاعدة الوكلاء</h3>
             <p class="text-xs text-slate-500">عدد الوكلاء الجدد المُسجَّلين شهرياً</p>
         </div>
-        <div class="h-48">
+        <div class="relative h-48 w-full">
             <canvas id="agentsChart"></canvas>
         </div>
     </div>
@@ -76,7 +76,7 @@
     <div class="grid lg:grid-cols-3 gap-4">
 
         {{-- Top 10 leaderboard (2/3) --}}
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden min-w-0">
             <div class="flex items-center justify-between px-5 py-4">
                 <div>
                     <h3 class="font-semibold text-slate-900">أفضل 10 وكلاء (هذا الشهر)</h3>
@@ -90,35 +90,37 @@
             @if($top_agents->isEmpty())
                 <x-ui.empty-state title="لا توجد مبيعات هذا الشهر" />
             @else
-                <table class="w-full text-right">
-                    <thead class="bg-slate-50 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                        <tr>
-                            <th class="px-4 py-3 w-12">#</th>
-                            <th class="px-4 py-3">الوكيل</th>
-                            <th class="px-4 py-3">التصنيف</th>
-                            <th class="px-4 py-3">باكجات</th>
-                            <th class="px-4 py-3">مبيعات</th>
-                            <th class="px-4 py-3">نقاط</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @foreach($top_agents as $i => $agent)
-                            <tr class="hover:bg-slate-50/50">
-                                <td class="px-4 py-3 font-bold text-slate-400" dir="ltr">{{ $i + 1 }}</td>
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $agent->business_name }}</div>
-                                    <div class="text-xs text-slate-500 font-latin">{{ $agent->external_agent_id }}</div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <x-ui.tier-badge :tier="$agent->current_tier" size="sm" />
-                                </td>
-                                <td class="px-4 py-3 text-sm" dir="ltr">{{ $agent->monthly_packages ?? 0 }}</td>
-                                <td class="px-4 py-3 text-sm font-medium text-slate-900" dir="ltr">${{ number_format($agent->monthly_revenue ?? 0, 0) }}</td>
-                                <td class="px-4 py-3 text-sm font-bold text-emerald-600" dir="ltr">+{{ number_format($agent->monthly_points ?? 0) }}</td>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead class="bg-slate-50 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3 w-12">#</th>
+                                <th class="px-4 py-3">الوكيل</th>
+                                <th class="px-4 py-3">التصنيف</th>
+                                <th class="px-4 py-3">باكجات</th>
+                                <th class="px-4 py-3">مبيعات</th>
+                                <th class="px-4 py-3">نقاط</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($top_agents as $i => $agent)
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="px-4 py-3 font-bold text-slate-400" dir="ltr">{{ $i + 1 }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-medium text-slate-900 whitespace-nowrap">{{ $agent->business_name }}</div>
+                                        <div class="text-xs text-slate-500 font-latin">{{ $agent->external_agent_id }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <x-ui.tier-badge :tier="$agent->current_tier" size="sm" />
+                                    </td>
+                                    <td class="px-4 py-3 text-sm" dir="ltr">{{ $agent->monthly_packages ?? 0 }}</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-slate-900 whitespace-nowrap" dir="ltr">${{ number_format($agent->monthly_revenue ?? 0, 0) }}</td>
+                                    <td class="px-4 py-3 text-sm font-bold text-emerald-600 whitespace-nowrap" dir="ltr">+{{ number_format($agent->monthly_points ?? 0) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @endif
         </div>
 
@@ -254,9 +256,13 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '65%',
+                        cutout: '60%',
+                        layout: { padding: 8 },
                         plugins: {
-                            legend: { position: 'bottom', labels: { padding: 12, font: { size: 12 } } },
+                            legend: {
+                                position: 'bottom',
+                                labels: { padding: 10, font: { size: 11 }, boxWidth: 12 },
+                            },
                         },
                     },
                 });
