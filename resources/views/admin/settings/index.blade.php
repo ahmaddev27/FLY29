@@ -53,6 +53,21 @@
             'hint'  => 'يمنع تسجيل دخول الأدمن بدون مصادقة ثنائية',
         ],
     ];
+
+    // Per-category icon (heroicon paths)
+    $categoryIcons = [
+        'points'     => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        'redemption' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+        'tier'       => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
+        'webhook'    => 'M13 10V3L4 14h7v7l9-11h-7z',
+        'agents'     => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+        'auth'       => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+        'security'   => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+        'general'    => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+    ];
+
+    // Find first category as default for tab
+    $firstCat = $grouped->keys()->first();
 @endphp
 
 <x-layouts.admin
@@ -63,7 +78,13 @@
         ['label' => 'الإعدادات'],
     ]"
 >
-    <form method="POST" action="{{ route('admin.settings.update') }}" x-data="{ dirty: false }" @input="dirty = true" @change="dirty = true">
+    <form method="POST" action="{{ route('admin.settings.update') }}"
+          x-data="{
+              activeTab: @js($firstCat),
+              dirty: false,
+          }"
+          @input="dirty = true"
+          @change="dirty = true">
         @csrf
         @method('PATCH')
 
@@ -76,7 +97,7 @@
         >
             <div class="flex items-center gap-2 text-amber-800 text-sm">
                 <x-ui.icon name="alert-triangle" size="sm" />
-                <span>لديك تغييرات غير محفوظة.</span>
+                <span>لديك تغييرات غير محفوظة في تبويب <strong x-text="$store ? '' : ''"></strong>.</span>
             </div>
             <div class="flex gap-2">
                 <x-ui.button type="button" variant="secondary" size="sm" :auto-loading="false" x-on:click="window.location.reload()">
@@ -88,82 +109,127 @@
             </div>
         </div>
 
-        <div class="space-y-6">
-            @foreach($grouped as $category => $settings)
-                <x-ui.card :title="$categoryLabels[$category] ?? ucfirst($category)">
-                    <div class="divide-y divide-slate-100">
-                        @foreach($settings as $setting)
-                            @php
-                                $info  = $meta[$setting->key] ?? ['label' => $setting->key];
-                                $value = $setting->typedValue();
-                                $inputName = "settings[{$setting->key}]";
-                                $inputId = 'set_' . str_replace('.', '_', $setting->key);
-                            @endphp
+        <div class="grid lg:grid-cols-4 gap-6">
 
-                            <div class="grid sm:grid-cols-3 gap-4 py-4 first:pt-0 last:pb-0">
-                                {{-- Label + description --}}
-                                <div class="sm:col-span-1">
-                                    <label for="{{ $inputId }}" class="block font-medium text-sm text-slate-900">
-                                        {{ $info['label'] }}
-                                    </label>
-                                    <p class="text-xs font-latin text-slate-400 mt-0.5">{{ $setting->key }}</p>
-                                    @if(! empty($info['hint']) || $setting->description)
-                                        <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                                            {{ $info['hint'] ?? $setting->description }}
-                                        </p>
-                                    @endif
-                                </div>
+            {{-- Vertical tab nav (left in RTL = "start") --}}
+            <aside class="lg:col-span-1">
+                <nav class="bg-white rounded-xl shadow-sm p-2 lg:sticky lg:top-4">
+                    @foreach($grouped as $category => $settings)
+                        @php $iconPath = $categoryIcons[$category] ?? $categoryIcons['general']; @endphp
+                        <button
+                            type="button"
+                            x-on:click="activeTab = @js($category)"
+                            :class="activeTab === @js($category)
+                                ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)] font-semibold shadow-inner'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start text-sm transition-colors"
+                        >
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconPath }}"/>
+                            </svg>
+                            <span class="flex-1 truncate">{{ $categoryLabels[$category] ?? ucfirst($category) }}</span>
+                            <span class="text-xs text-slate-400 font-latin">{{ $settings->count() }}</span>
+                        </button>
+                    @endforeach
+                </nav>
+            </aside>
 
-                                {{-- Input (type-aware) --}}
-                                <div class="sm:col-span-2">
-                                    @if(isset($info['enum']))
-                                        <x-ui.select
-                                            :id="$inputId"
-                                            :name="$inputName"
-                                            :options="$info['enum']"
-                                            :selected="$value"
-                                        />
-                                    @elseif($setting->value_type === 'bool')
-                                        <label class="inline-flex items-center gap-3 cursor-pointer">
-                                            <input type="hidden" name="{{ $inputName }}" value="0">
-                                            <input
-                                                type="checkbox"
-                                                id="{{ $inputId }}"
-                                                name="{{ $inputName }}"
-                                                value="1"
-                                                @checked($value)
-                                                class="rounded border-slate-300 text-[var(--color-primary-500)] focus:ring-[var(--color-primary-100)] w-5 h-5"
-                                            >
-                                            <span class="text-sm text-slate-600" x-data="{ on: {{ $value ? 'true' : 'false' }} }" x-init="$watch('on', v => v); document.getElementById('{{ $inputId }}').addEventListener('change', e => on = e.target.checked)">
-                                                <span x-show="on" x-cloak class="text-emerald-700 font-medium">مفعّل</span>
-                                                <span x-show="!on" x-cloak class="text-slate-500">معطّل</span>
-                                            </span>
-                                        </label>
-                                    @elseif($setting->value_type === 'int')
-                                        <x-ui.input type="number" :id="$inputId" :name="$inputName" :value="$value" step="1" />
-                                    @elseif($setting->value_type === 'float')
-                                        <x-ui.input type="number" :id="$inputId" :name="$inputName" :value="$value" step="0.01" />
-                                    @elseif($setting->value_type === 'json')
-                                        <x-ui.textarea :id="$inputId" :name="$inputName" rows="4" dir="ltr" class="font-latin text-xs">{{ json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</x-ui.textarea>
-                                    @else
-                                        <x-ui.input :id="$inputId" :name="$inputName" :value="$value" />
-                                    @endif
+            {{-- Tab panels --}}
+            <div class="lg:col-span-3 space-y-6">
+                @foreach($grouped as $category => $settings)
+                    <div
+                        x-show="activeTab === @js($category)"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                    >
+                        <x-ui.card :title="$categoryLabels[$category] ?? ucfirst($category)">
+                            <div class="divide-y divide-slate-100">
+                                @foreach($settings as $setting)
+                                    @php
+                                        $info  = $meta[$setting->key] ?? ['label' => $setting->key];
+                                        $value = $setting->typedValue();
+                                        $inputName = "settings[{$setting->key}]";
+                                        $inputId = 'set_' . str_replace('.', '_', $setting->key);
+                                    @endphp
 
-                                    @error("settings.{$setting->key}")
-                                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                                    <div class="grid sm:grid-cols-3 gap-4 py-4 first:pt-0 last:pb-0">
+                                        {{-- Label + description --}}
+                                        <div class="sm:col-span-1">
+                                            <label for="{{ $inputId }}" class="block font-medium text-sm text-slate-900">
+                                                {{ $info['label'] }}
+                                            </label>
+                                            <p class="text-xs font-latin text-slate-400 mt-0.5">{{ $setting->key }}</p>
+                                            @if(! empty($info['hint']) || $setting->description)
+                                                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                                                    {{ $info['hint'] ?? $setting->description }}
+                                                </p>
+                                            @endif
+                                        </div>
+
+                                        {{-- Input (type-aware) --}}
+                                        <div class="sm:col-span-2">
+                                            @if(isset($info['enum']))
+                                                <x-ui.select
+                                                    :id="$inputId"
+                                                    :name="$inputName"
+                                                    :options="$info['enum']"
+                                                    :selected="$value"
+                                                />
+                                            @elseif($setting->value_type === 'bool')
+                                                <label class="inline-flex items-center gap-3 cursor-pointer select-none" x-data="{ on: {{ $value ? 'true' : 'false' }} }">
+                                                    <input type="hidden" name="{{ $inputName }}" value="0">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="{{ $inputId }}"
+                                                        name="{{ $inputName }}"
+                                                        value="1"
+                                                        x-model="on"
+                                                        class="sr-only peer"
+                                                    >
+                                                    {{-- Toggle pill --}}
+                                                    <span
+                                                        class="relative w-11 h-6 rounded-full transition-colors"
+                                                        :class="on ? 'bg-[var(--color-primary-500)]' : 'bg-slate-300'"
+                                                    >
+                                                        <span
+                                                            class="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all"
+                                                            :class="on ? 'start-5' : 'start-0.5'"
+                                                        ></span>
+                                                    </span>
+                                                    <span class="text-sm">
+                                                        <span x-show="on" class="text-emerald-700 font-medium">مفعّل</span>
+                                                        <span x-show="!on" class="text-slate-500">معطّل</span>
+                                                    </span>
+                                                </label>
+                                            @elseif($setting->value_type === 'int')
+                                                <x-ui.input type="number" :id="$inputId" :name="$inputName" :value="$value" step="1" />
+                                            @elseif($setting->value_type === 'float')
+                                                <x-ui.input type="number" :id="$inputId" :name="$inputName" :value="$value" step="0.01" />
+                                            @elseif($setting->value_type === 'json')
+                                                <x-ui.textarea :id="$inputId" :name="$inputName" rows="4" dir="ltr" class="font-latin text-xs">{{ json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</x-ui.textarea>
+                                            @else
+                                                <x-ui.input :id="$inputId" :name="$inputName" :value="$value" />
+                                            @endif
+
+                                            @error("settings.{$setting->key}")
+                                                <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
+                        </x-ui.card>
                     </div>
-                </x-ui.card>
-            @endforeach
-        </div>
+                @endforeach
 
-        <div class="flex justify-end gap-2 mt-6">
-            <x-ui.button type="submit" variant="cta">
-                <x-ui.icon name="check" size="sm" /> حفظ الإعدادات
-            </x-ui.button>
+                <div class="flex justify-end gap-2">
+                    <x-ui.button type="submit" variant="cta">
+                        <x-ui.icon name="check" size="sm" /> حفظ الإعدادات
+                    </x-ui.button>
+                </div>
+            </div>
         </div>
     </form>
 </x-layouts.admin>
