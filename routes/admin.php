@@ -52,6 +52,8 @@ Route::middleware(['auth', 'admin'])
             ->name('redemptions')
             ->group(function () {
                 Route::get('/',                          'index');
+                Route::post('/bulk-approve',             'bulkApprove')->name('.bulk-approve');
+                Route::post('/bulk-reject',              'bulkReject')->name('.bulk-reject');
                 Route::post('/{redemption}/approve',     'approve')->name('.approve');
                 Route::post('/{redemption}/reject',      'reject')->name('.reject');
             });

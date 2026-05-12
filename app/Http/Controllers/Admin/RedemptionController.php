@@ -89,4 +89,69 @@ class RedemptionController extends Controller
 
         return back()->with('status', "تم رفض الطلب #{$redemption->id} مع إبلاغ الوكيل.");
     }
+
+    /**
+     * Bulk approve — only cash requests in pending status.
+     */
+    public function bulkApprove(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids'   => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:redemption_requests,id'],
+        ]);
+
+        $pending = RedemptionRequest::whereIn('id', $data['ids'])
+            ->where('status', 'pending')
+            ->where('type', 'cash')
+            ->get();
+
+        $ok = 0; $fail = 0;
+
+        foreach ($pending as $redemption) {
+            try {
+                $this->service->approveCash($redemption, $request->user());
+                $ok++;
+            } catch (DomainException $e) {
+                $fail++;
+            }
+        }
+
+        return back()->with(
+            'status',
+            "تمت الموافقة على {$ok} طلب" . ($fail ? " — تخطّى {$fail} طلب (خطأ أو غير مؤهل)." : '.')
+        );
+    }
+
+    /**
+     * Bulk reject — requires one shared reason for all selected pending requests.
+     */
+    public function bulkReject(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids'              => ['required', 'array', 'min:1'],
+            'ids.*'            => ['integer', 'exists:redemption_requests,id'],
+            'rejection_reason' => ['required', 'string', 'min:5', 'max:500'],
+        ]);
+
+        $pending = RedemptionRequest::whereIn('id', $data['ids'])
+            ->where('status', 'pending')
+            ->where('type', 'cash')
+            ->get();
+
+        $ok = 0; $fail = 0;
+
+        foreach ($pending as $redemption) {
+            try {
+                $this->service->rejectCash($redemption, $request->user(), $data['rejection_reason']);
+                $ok++;
+            } catch (DomainException $e) {
+                $fail++;
+            }
+        }
+
+        return back()->with(
+            'status',
+            "تم رفض {$ok} طلب" . ($fail ? " — تخطّى {$fail} طلب." : '.')
+        );
+    }
 }
