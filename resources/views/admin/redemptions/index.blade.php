@@ -10,76 +10,96 @@
     {{-- Stats strip --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         @foreach([
-            'pending'   => ['label' => 'قيد المراجعة', 'variant' => 'warning'],
-            'approved'  => ['label' => 'معتمدة',       'variant' => 'success'],
-            'rejected'  => ['label' => 'مرفوضة',       'variant' => 'danger'],
-            'cancelled' => ['label' => 'ملغاة',        'variant' => 'neutral'],
+            'pending'   => ['label' => 'قيد المراجعة', 'color' => 'amber'],
+            'approved'  => ['label' => 'معتمدة',       'color' => 'emerald'],
+            'rejected'  => ['label' => 'مرفوضة',       'color' => 'rose'],
+            'cancelled' => ['label' => 'ملغاة',        'color' => 'slate'],
         ] as $statusKey => $meta)
             <a href="{{ route('admin.redemptions', ['status' => $statusKey]) }}"
-               class="bg-white rounded-[var(--radius-md)] border border-[var(--color-surface-border)] p-4 hover:shadow-[var(--shadow-card-hover)] transition-base
-                      {{ $currentStatus === $statusKey ? 'ring-2 ring-[var(--color-primary-500)]' : '' }}">
-                <p class="text-xs text-[var(--color-text-secondary)]">{{ $meta['label'] }}</p>
-                <p class="text-2xl font-bold text-[var(--color-text-primary)] mt-1">{{ $counts[$statusKey] ?? 0 }}</p>
+               class="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow
+                      {{ $currentStatus === $statusKey ? 'ring-2 ring-[var(--color-primary-500)] ring-offset-1' : '' }}">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500">{{ $meta['label'] }}</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-1">{{ $counts[$statusKey] ?? 0 }}</p>
+                    </div>
+                    <span class="w-2 h-12 rounded-full bg-{{ $meta['color'] }}-400"></span>
+                </div>
             </a>
         @endforeach
     </div>
 
-    <x-ui.card>
-        {{-- Tabs --}}
-        <div class="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-[var(--color-surface-divider)]">
-            @foreach(['pending' => 'قيد المراجعة', 'approved' => 'معتمدة', 'rejected' => 'مرفوضة', 'cancelled' => 'ملغاة', 'all' => 'الكل'] as $key => $label)
-                <a href="{{ route('admin.redemptions', ['status' => $key === 'all' ? null : $key, 'type' => $currentType]) }}"
-                   class="px-3 py-1.5 text-sm rounded-[var(--radius-sm)] transition-base
-                          {{ $currentStatus === $key ? 'bg-[var(--color-primary-500)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]' }}">
-                    {{ $label }}
-                </a>
-            @endforeach
-
-            <div class="me-auto"></div>
-
-            {{-- Type filter --}}
-            <select onchange="window.location.href=this.value"
-                    class="rounded-[var(--radius-sm)] border-[var(--color-surface-border)] text-sm focus:ring-[var(--color-primary-100)] focus:border-[var(--color-primary-500)]">
-                <option value="{{ route('admin.redemptions', ['status' => $currentStatus]) }}" @selected(!$currentType)>كل الأنواع</option>
-                <option value="{{ route('admin.redemptions', ['status' => $currentStatus, 'type' => 'cash']) }}" @selected($currentType === 'cash')>نقدي فقط</option>
-                <option value="{{ route('admin.redemptions', ['status' => $currentStatus, 'type' => 'package']) }}" @selected($currentType === 'package')>باكج فقط</option>
-            </select>
-        </div>
-
-        @if($requests->isEmpty())
+    <x-ui.data-table
+        :paginator="$requests"
+        search-placeholder="اسم الوكيل أو معرّفه..."
+        :filters="[
+            [
+                'name'    => 'status',
+                'label'   => 'الحالة',
+                'options' => [
+                    'pending'   => 'قيد المراجعة',
+                    'approved'  => 'معتمدة',
+                    'rejected'  => 'مرفوضة',
+                    'cancelled' => 'ملغاة',
+                    'fulfilled' => 'منفّذة',
+                ],
+            ],
+            [
+                'name'    => 'type',
+                'label'   => 'النوع',
+                'options' => ['cash' => 'نقدي', 'package' => 'باكج'],
+            ],
+        ]"
+        :is-empty="$requests->isEmpty()"
+    >
+        <x-slot:empty>
             <x-ui.empty-state title="لا توجد طلبات في هذه الفئة" />
-        @else
-            <x-ui.table :headers="['#', 'الوكيل', 'النوع', 'النقاط', 'القيمة/الباكج', 'الحالة', 'التاريخ', 'إجراء']">
+        </x-slot:empty>
+
+        <table class="w-full text-right">
+            <thead class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <tr>
+                    <th class="px-4 py-3">#</th>
+                    <th class="px-4 py-3">الوكيل</th>
+                    <th class="px-4 py-3">النوع</th>
+                    <th class="px-4 py-3">النقاط</th>
+                    <th class="px-4 py-3">القيمة/الباكج</th>
+                    <th class="px-4 py-3">الحالة</th>
+                    <th class="px-4 py-3">التاريخ</th>
+                    <th class="px-4 py-3 text-center">إجراء</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
                 @foreach($requests as $req)
-                    <x-ui.table-row>
-                        <x-ui.table-cell>
-                            <span class="font-latin text-xs text-[var(--color-text-muted)]">#{{ $req->id }}</span>
-                        </x-ui.table-cell>
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-4 py-3">
+                            <span class="font-latin text-xs text-slate-500">#{{ $req->id }}</span>
+                        </td>
 
-                        <x-ui.table-cell>
-                            <div class="text-sm font-medium">{{ $req->agent->business_name }}</div>
-                            <div class="text-xs text-[var(--color-text-muted)] font-latin">{{ $req->agent->external_agent_id }}</div>
-                        </x-ui.table-cell>
+                        <td class="px-4 py-3">
+                            <div class="text-sm font-medium text-slate-900">{{ $req->agent->business_name }}</div>
+                            <div class="text-xs text-slate-500 font-latin">{{ $req->agent->external_agent_id }}</div>
+                        </td>
 
-                        <x-ui.table-cell>
+                        <td class="px-4 py-3">
                             <x-ui.badge :variant="$req->type === 'cash' ? 'success' : 'primary'" size="sm">
                                 {{ $req->type === 'cash' ? 'نقدي' : 'باكج' }}
                             </x-ui.badge>
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>
-                            <span dir="ltr" class="font-semibold">{{ number_format($req->points) }}</span>
-                        </x-ui.table-cell>
+                        <td class="px-4 py-3">
+                            <span dir="ltr" class="font-semibold text-slate-900">{{ number_format($req->points) }}</span>
+                        </td>
 
-                        <x-ui.table-cell>
+                        <td class="px-4 py-3">
                             @if($req->type === 'cash')
-                                <span dir="ltr" class="text-[var(--color-cta-700)] font-medium">${{ number_format($req->cash_value_usd, 2) }}</span>
+                                <span dir="ltr" class="text-emerald-700 font-medium">${{ number_format($req->cash_value_usd, 2) }}</span>
                             @else
-                                <span class="text-sm">{{ $req->package?->name ?? '—' }}</span>
+                                <span class="text-sm text-slate-700">{{ $req->package?->name ?? '—' }}</span>
                             @endif
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>
+                        <td class="px-4 py-3">
                             @switch($req->status)
                                 @case('pending')   <x-ui.badge variant="warning" :dot="true">قيد المراجعة</x-ui.badge> @break
                                 @case('approved')  <x-ui.badge variant="success" :dot="true">معتمد</x-ui.badge> @break
@@ -88,26 +108,21 @@
                                 @case('fulfilled') <x-ui.badge variant="info"    :dot="true">منفّذ</x-ui.badge> @break
                             @endswitch
                             @if($req->rejection_reason)
-                                <div class="text-xs text-[var(--color-text-muted)] mt-1 max-w-xs">{{ $req->rejection_reason }}</div>
+                                <div class="text-xs text-slate-500 mt-1 max-w-xs">{{ $req->rejection_reason }}</div>
                             @endif
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>
-                            <div class="text-sm">{{ $req->requested_at->format('Y-m-d') }}</div>
-                            <div class="text-xs text-[var(--color-text-muted)]">{{ $req->requested_at->format('H:i') }}</div>
-                        </x-ui.table-cell>
+                        <td class="px-4 py-3">
+                            <div class="text-sm text-slate-700">{{ $req->requested_at->format('Y-m-d') }}</div>
+                            <div class="text-xs text-slate-500">{{ $req->requested_at->format('H:i') }}</div>
+                        </td>
 
-                        <x-ui.table-cell>
-                            @if($req->status === 'pending' && $req->type === 'cash')
-                                <div class="flex items-center gap-1">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-1">
+                                @if($req->status === 'pending' && $req->type === 'cash')
                                     <form method="POST" action="{{ route('admin.redemptions.approve', $req) }}" class="inline">
                                         @csrf
-                                        <x-ui.icon-button
-                                            type="submit"
-                                            icon="check"
-                                            variant="success"
-                                            tooltip="موافقة"
-                                        />
+                                        <x-ui.icon-button type="submit" icon="check" variant="success" tooltip="موافقة" />
                                     </form>
                                     <x-ui.icon-button
                                         type="button"
@@ -117,49 +132,45 @@
                                         :auto-loading="false"
                                         x-on:click="$dispatch('open-modal', 'reject-{{ $req->id }}')"
                                     />
-                                </div>
 
-                                {{-- Reject modal --}}
-                                <x-ui.modal :name="'reject-' . $req->id" title="رفض الطلب #{{ $req->id }}" size="sm">
-                                    <form method="POST" action="{{ route('admin.redemptions.reject', $req) }}">
-                                        @csrf
-                                        <p class="text-sm text-[var(--color-text-secondary)] mb-3">
-                                            سيُسترَدّ <strong dir="ltr">{{ number_format($req->points) }}</strong> نقطة للوكيل ويصله إشعار بالسبب.
-                                        </p>
-                                        <x-forms.form-group label="سبب الرفض" for="rejection_reason_{{ $req->id }}" required>
-                                            <x-ui.textarea
-                                                id="rejection_reason_{{ $req->id }}"
-                                                name="rejection_reason"
-                                                rows="3"
-                                                placeholder="يرجى توضيح السبب باختصار..."
-                                                required
-                                            />
-                                        </x-forms.form-group>
+                                    {{-- Reject modal --}}
+                                    <x-ui.modal :name="'reject-' . $req->id" title="رفض الطلب #{{ $req->id }}" size="sm">
+                                        <form method="POST" action="{{ route('admin.redemptions.reject', $req) }}">
+                                            @csrf
+                                            <p class="text-sm text-slate-600 mb-3">
+                                                سيُسترَدّ <strong dir="ltr">{{ number_format($req->points) }}</strong> نقطة للوكيل ويصله إشعار بالسبب.
+                                            </p>
+                                            <x-forms.form-group label="سبب الرفض" :for="'rejection_reason_' . $req->id" required>
+                                                <x-ui.textarea
+                                                    :id="'rejection_reason_' . $req->id"
+                                                    name="rejection_reason"
+                                                    rows="3"
+                                                    placeholder="يرجى توضيح السبب باختصار..."
+                                                    required
+                                                />
+                                            </x-forms.form-group>
 
-                                        <x-slot:footer>
-                                            <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reject-{{ $req->id }}')">إلغاء</x-ui.button>
-                                            <x-ui.button type="submit" variant="danger">تأكيد الرفض</x-ui.button>
-                                        </x-slot:footer>
-                                    </form>
-                                </x-ui.modal>
-                            @else
-                                <span class="text-xs text-[var(--color-text-muted)]">
-                                    @if($req->processor)
-                                        بواسطة {{ $req->processor->full_name }}
-                                    @else
-                                        —
-                                    @endif
-                                </span>
-                            @endif
-                        </x-ui.table-cell>
-                    </x-ui.table-row>
+                                            <x-slot:footer>
+                                                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reject-{{ $req->id }}')">إلغاء</x-ui.button>
+                                                <x-ui.button type="submit" variant="danger">تأكيد الرفض</x-ui.button>
+                                            </x-slot:footer>
+                                        </form>
+                                    </x-ui.modal>
+                                @else
+                                    <span class="text-xs text-slate-400">
+                                        @if($req->processor)
+                                            بواسطة {{ $req->processor->full_name }}
+                                        @else
+                                            —
+                                        @endif
+                                    </span>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
                 @endforeach
-            </x-ui.table>
-
-            <div class="mt-4">
-                {{ $requests->links() }}
-            </div>
-        @endif
-    </x-ui.card>
+            </tbody>
+        </table>
+    </x-ui.data-table>
 
 </x-layouts.admin>

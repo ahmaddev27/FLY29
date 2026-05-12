@@ -41,7 +41,7 @@
             <x-slot:footer>
                 <div class="text-center">
                     <x-ui.badge variant="primary" :dot="true">{{ $user->role }}</x-ui.badge>
-                    <p class="text-xs text-[var(--color-text-muted)] mt-2 truncate">{{ $user->full_name }}</p>
+                    <p class="text-xs text-slate-400 mt-2 truncate">{{ $user->full_name }}</p>
                 </div>
             </x-slot:footer>
         </x-layout.sidebar>

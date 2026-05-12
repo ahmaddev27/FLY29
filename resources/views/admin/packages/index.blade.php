@@ -7,17 +7,28 @@
     ]"
 >
 
-    <x-ui.card>
-        <x-slot:actions>
+    <x-ui.data-table
+        :paginator="$packages"
+        search-placeholder="اسم الباكج أو الوجهة..."
+        :filters="[
+            [
+                'name'    => 'status',
+                'label'   => 'الحالة',
+                'options' => ['active' => 'نشط', 'inactive' => 'معطّل'],
+            ],
+        ]"
+        :is-empty="$packages->isEmpty()"
+    >
+        <x-slot:toolbar>
             <x-ui.button variant="cta" size="sm" href="{{ route('admin.packages.create') }}">
-                <x-ui.icon name="plus" size="sm" /> إضافة باكج جديد
+                <x-ui.icon name="plus" size="sm" /> باكج جديد
             </x-ui.button>
-        </x-slot:actions>
+        </x-slot:toolbar>
 
-        @if($packages->isEmpty())
+        <x-slot:empty>
             <x-ui.empty-state
-                title="لا توجد باكجات بعد"
-                description="ابدأ بإضافة باكجات سياحية يمكن للوكلاء استبدالها بنقاطهم."
+                title="لا توجد باكجات"
+                description="ابدأ بإضافة باكج سياحي يمكن للوكلاء استبداله بنقاطهم."
             >
                 <x-slot:actions>
                     <x-ui.button variant="cta" href="{{ route('admin.packages.create') }}">
@@ -25,63 +36,70 @@
                     </x-ui.button>
                 </x-slot:actions>
             </x-ui.empty-state>
-        @else
-            <x-ui.table :headers="['', 'الاسم', 'الوجهة', 'النقاط', 'المدة', 'الحالة', 'الترتيب', 'إجراءات']">
+        </x-slot:empty>
+
+        <table class="w-full text-right">
+            <thead class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <tr>
+                    <th class="px-4 py-3 w-16"></th>
+                    <th class="px-4 py-3">الاسم</th>
+                    <th class="px-4 py-3">الوجهة</th>
+                    <th class="px-4 py-3">النقاط</th>
+                    <th class="px-4 py-3">المدة</th>
+                    <th class="px-4 py-3">الحالة</th>
+                    <th class="px-4 py-3">الترتيب</th>
+                    <th class="px-4 py-3 text-center">إجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
                 @foreach($packages as $pkg)
-                    <x-ui.table-row>
-                        <x-ui.table-cell>
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-4 py-3">
                             @if($pkg->image_url)
-                                <img src="{{ asset($pkg->image_url) }}" alt="" class="w-12 h-12 rounded object-cover">
+                                <img src="{{ asset($pkg->image_url) }}" alt="" class="w-12 h-12 rounded-lg object-cover ring-1 ring-slate-200">
                             @else
-                                <div class="w-12 h-12 rounded bg-[var(--color-surface-secondary)] flex items-center justify-center text-[var(--color-text-muted)]">
-                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                                <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 ring-1 ring-slate-200">
+                                    <x-ui.icon name="image" size="md" />
                                 </div>
                             @endif
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>
-                            <div class="font-medium">{{ $pkg->name }}</div>
+                        <td class="px-4 py-3">
+                            <div class="font-medium text-slate-900">{{ $pkg->name }}</div>
                             @if($pkg->valid_until)
-                                <div class="text-xs text-[var(--color-text-muted)]">ينتهي: {{ $pkg->valid_until->format('Y-m-d') }}</div>
+                                <div class="text-xs text-slate-500">ينتهي: {{ $pkg->valid_until->format('Y-m-d') }}</div>
                             @endif
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>{{ $pkg->destination }}</x-ui.table-cell>
+                        <td class="px-4 py-3 text-slate-700">{{ $pkg->destination }}</td>
 
-                        <x-ui.table-cell>
-                            <span dir="ltr" class="font-semibold">{{ number_format($pkg->points_required) }}</span>
-                        </x-ui.table-cell>
+                        <td class="px-4 py-3">
+                            <span dir="ltr" class="font-semibold text-slate-900">{{ number_format($pkg->points_required) }}</span>
+                        </td>
 
-                        <x-ui.table-cell>
+                        <td class="px-4 py-3 text-slate-700">
                             @if($pkg->duration_days)
                                 <span dir="ltr">{{ $pkg->duration_days }}</span> يوم
                             @else
-                                —
+                                <span class="text-slate-400">—</span>
                             @endif
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>
+                        <td class="px-4 py-3">
                             @if($pkg->is_active)
                                 <x-ui.badge variant="success" :dot="true">نشط</x-ui.badge>
                             @else
                                 <x-ui.badge variant="neutral" :dot="true">معطّل</x-ui.badge>
                             @endif
-                        </x-ui.table-cell>
+                        </td>
 
-                        <x-ui.table-cell>
-                            <span class="text-sm text-[var(--color-text-muted)]" dir="ltr">{{ $pkg->display_order }}</span>
-                        </x-ui.table-cell>
+                        <td class="px-4 py-3">
+                            <span class="text-sm text-slate-500" dir="ltr">{{ $pkg->display_order }}</span>
+                        </td>
 
-                        <x-ui.table-cell>
-                            <div class="flex items-center gap-1">
-                                <x-ui.icon-button
-                                    icon="edit"
-                                    variant="primary"
-                                    tooltip="تعديل"
-                                    href="{{ route('admin.packages.edit', $pkg) }}"
-                                />
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-1">
+                                <x-ui.icon-button icon="edit" variant="primary" tooltip="تعديل" href="{{ route('admin.packages.edit', $pkg) }}" />
 
                                 <form method="POST" action="{{ route('admin.packages.toggle', $pkg) }}" class="inline">
                                     @csrf
@@ -99,22 +117,14 @@
                                       class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <x-ui.icon-button
-                                        type="submit"
-                                        icon="trash"
-                                        variant="danger"
-                                        tooltip="حذف"
-                                        :auto-loading="false"
-                                    />
+                                    <x-ui.icon-button type="submit" icon="trash" variant="danger" tooltip="حذف" :auto-loading="false" />
                                 </form>
                             </div>
-                        </x-ui.table-cell>
-                    </x-ui.table-row>
+                        </td>
+                    </tr>
                 @endforeach
-            </x-ui.table>
-
-            <div class="mt-4">{{ $packages->links() }}</div>
-        @endif
-    </x-ui.card>
+            </tbody>
+        </table>
+    </x-ui.data-table>
 
 </x-layouts.admin>

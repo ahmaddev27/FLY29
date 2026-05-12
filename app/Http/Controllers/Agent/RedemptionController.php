@@ -25,10 +25,20 @@ class RedemptionController extends Controller
     {
         $agent = $request->user()->agent;
 
-        $requests = $agent->redemptions()
-            ->with('package')
-            ->latest('requested_at')
-            ->paginate(20);
+        $query = $agent->redemptions()->with('package')->latest('requested_at');
+
+        // Filters
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($type = $request->query('type')) {
+            $query->where('type', $type);
+        }
+
+        $perPage  = (int) $request->query('per_page', 25);
+        $perPage  = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 25;
+
+        $requests = $query->paginate($perPage);
 
         return view('agent.redemptions.index', compact('requests'));
     }

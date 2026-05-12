@@ -15,11 +15,25 @@ class PackageController extends Controller
 {
     public function __construct(private AuditService $audit) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $packages = FreePackage::orderBy('display_order')
-            ->orderBy('points_required')
-            ->paginate(20);
+        $query = FreePackage::orderBy('display_order')->orderBy('points_required');
+
+        if ($q = $request->query('q')) {
+            $query->where(function ($qb) use ($q) {
+                $qb->where('name', 'like', "%{$q}%")
+                   ->orWhere('destination', 'like', "%{$q}%");
+            });
+        }
+
+        $status = $request->query('status');
+        if ($status === 'active')   { $query->where('is_active', true); }
+        if ($status === 'inactive') { $query->where('is_active', false); }
+
+        $perPage = (int) $request->query('per_page', 25);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 25;
+
+        $packages = $query->paginate($perPage);
 
         return view('admin.packages.index', compact('packages'));
     }

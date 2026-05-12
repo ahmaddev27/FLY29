@@ -21,6 +21,7 @@ class RedemptionController extends Controller
     {
         $status = $request->query('status', 'pending');
         $type   = $request->query('type');
+        $search = $request->query('q');
 
         $query = RedemptionRequest::with(['agent.user', 'package', 'processor'])
             ->latest('requested_at');
@@ -33,7 +34,17 @@ class RedemptionController extends Controller
             $query->where('type', $type);
         }
 
-        $requests = $query->paginate(25)->withQueryString();
+        if ($search) {
+            $query->whereHas('agent', function ($q) use ($search) {
+                $q->where('business_name', 'like', "%{$search}%")
+                  ->orWhere('external_agent_id', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage  = (int) $request->query('per_page', 25);
+        $perPage  = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 25;
+
+        $requests = $query->paginate($perPage);
 
         $counts = [
             'pending'   => RedemptionRequest::where('status', 'pending')->count(),

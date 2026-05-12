@@ -44,7 +44,7 @@
                 @if($agent)
                     <div class="text-center">
                         <x-ui.tier-badge :tier="$agent->current_tier" />
-                        <p class="text-xs text-[var(--color-text-muted)] mt-2 truncate">{{ $agent->business_name }}</p>
+                        <p class="text-xs text-slate-400 mt-2 truncate">{{ $agent->business_name }}</p>
                     </div>
                 @endif
             </x-slot:footer>
