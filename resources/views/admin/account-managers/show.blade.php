@@ -43,30 +43,36 @@
                     </div>
                 </dl>
 
-                <div class="mt-5 space-y-2">
+                <div class="mt-5 grid grid-cols-2 gap-2">
                     @if($manager->status === 'active')
                         <x-ui.button
                             variant="warning"
-                            :full="true"
+                            size="sm"
                             :auto-loading="false"
                             x-on:click="$dispatch('open-modal', 'suspend-mgr')"
-                        >تعليق الحساب</x-ui.button>
+                        >
+                            <x-ui.icon name="eye-off" size="sm" /> تعليق
+                        </x-ui.button>
                     @elseif($manager->status === 'suspended')
                         <form method="POST" action="{{ route('admin.account-managers.unsuspend', $manager) }}">
                             @csrf
                             @method('PATCH')
-                            <x-ui.button type="submit" variant="cta" :full="true">إلغاء التعليق</x-ui.button>
+                            <x-ui.button type="submit" variant="cta" size="sm" :full="true">
+                                <x-ui.icon name="check" size="sm" /> تفعيل
+                            </x-ui.button>
                         </form>
+                    @else
+                        <div></div>
                     @endif
 
                     <x-ui.button
                         type="button"
                         variant="danger"
-                        :full="true"
+                        size="sm"
                         :auto-loading="false"
                         x-on:click="$dispatch('open-modal', 'delete-mgr')"
                     >
-                        حذف المدير
+                        <x-ui.icon name="trash" size="sm" /> حذف
                     </x-ui.button>
 
                     <x-ui.confirm-dialog

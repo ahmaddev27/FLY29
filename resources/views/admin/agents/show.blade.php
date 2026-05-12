@@ -62,7 +62,8 @@
                 </div>
 
                 {{-- Actions --}}
-                <div class="mt-4 space-y-2">
+                <div class="mt-4">
+                    {{-- Primary action: adjust wallet (full-width) --}}
                     <x-ui.button
                         variant="primary"
                         :full="true"
@@ -72,30 +73,39 @@
                         <x-ui.icon name="edit" size="sm" /> تعديل يدوي للنقاط
                     </x-ui.button>
 
-                    @if($agent->user && $agent->user->status === 'active')
-                        <x-ui.button
-                            variant="warning"
-                            :full="true"
-                            :auto-loading="false"
-                            x-on:click="$dispatch('open-modal', 'suspend-modal')"
-                        >تعليق الحساب</x-ui.button>
-                    @elseif($agent->user && $agent->user->status === 'suspended')
-                        <form method="POST" action="{{ route('admin.agents.unsuspend', $agent) }}">
-                            @csrf
-                            @method('PATCH')
-                            <x-ui.button type="submit" variant="cta" :full="true">إلغاء التعليق</x-ui.button>
-                        </form>
-                    @endif
+                    {{-- Secondary lifecycle actions: side by side --}}
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        @if($agent->user && $agent->user->status === 'active')
+                            <x-ui.button
+                                variant="warning"
+                                size="sm"
+                                :auto-loading="false"
+                                x-on:click="$dispatch('open-modal', 'suspend-modal')"
+                            >
+                                <x-ui.icon name="eye-off" size="sm" /> تعليق
+                            </x-ui.button>
+                        @elseif($agent->user && $agent->user->status === 'suspended')
+                            <form method="POST" action="{{ route('admin.agents.unsuspend', $agent) }}">
+                                @csrf
+                                @method('PATCH')
+                                <x-ui.button type="submit" variant="cta" size="sm" :full="true">
+                                    <x-ui.icon name="check" size="sm" /> تفعيل
+                                </x-ui.button>
+                            </form>
+                        @else
+                            <div></div>
+                        @endif
 
-                    <x-ui.button
-                        type="button"
-                        variant="danger"
-                        :full="true"
-                        :auto-loading="false"
-                        x-on:click="$dispatch('open-modal', 'delete-agent-{{ $agent->id }}')"
-                    >
-                        حذف الوكيل
-                    </x-ui.button>
+                        <x-ui.button
+                            type="button"
+                            variant="danger"
+                            size="sm"
+                            :auto-loading="false"
+                            x-on:click="$dispatch('open-modal', 'delete-agent-{{ $agent->id }}')"
+                        >
+                            <x-ui.icon name="trash" size="sm" /> حذف
+                        </x-ui.button>
+                    </div>
 
                     <x-ui.confirm-dialog
                         :name="'delete-agent-' . $agent->id"
