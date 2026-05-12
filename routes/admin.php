@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountManagerController;
 use App\Http\Controllers\Admin\AdjustmentController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -70,6 +71,22 @@ Route::middleware(['auth', 'admin'])
         // Settings
         Route::get('/settings',    [SettingsController::class, 'index'])->name('settings');
         Route::patch('/settings',  [SettingsController::class, 'update'])->name('settings.update');
+
+        // Account Managers
+        Route::controller(AccountManagerController::class)
+            ->prefix('account-managers')
+            ->name('account-managers')
+            ->group(function () {
+                Route::get('/',                              'index');
+                Route::get('/create',                        'create')->name('.create');
+                Route::post('/',                             'store')->name('.store');
+                Route::get('/{manager}',                     'show')->name('.show');
+                Route::post('/{manager}/assign',             'assign')->name('.assign');
+                Route::delete('/{manager}/agents/{agent}',   'unassign')->name('.unassign');
+                Route::patch('/{manager}/suspend',           'suspend')->name('.suspend');
+                Route::patch('/{manager}/unsuspend',         'unsuspend')->name('.unsuspend');
+                Route::delete('/{manager}',                  'destroy')->name('.destroy');
+            });
 
         // Manual adjustments (with dual approval over threshold)
         Route::controller(AdjustmentController::class)
