@@ -5,7 +5,7 @@
     'notificationsCount' => 0,
 ])
 
-<header class="sticky top-0 z-20 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-3 bg-white border-b border-[var(--color-surface-border)] shadow-[var(--shadow-card)]">
+<header class="sticky top-0 z-20 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 py-3 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
 
     {{-- Mobile hamburger (opens sidebar via plain DOM CustomEvent so we don't
          depend on being inside an Alpine x-data scope) --}}

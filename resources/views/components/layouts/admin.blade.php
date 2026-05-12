@@ -40,8 +40,11 @@
         >
             <x-slot:footer>
                 <div class="text-center">
-                    <x-ui.badge variant="primary" :dot="true">{{ $user->role }}</x-ui.badge>
-                    <p class="text-xs text-slate-400 mt-2 truncate">{{ $user->full_name }}</p>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 text-white text-xs font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-cta-500)]"></span>
+                        {{ $user->role }}
+                    </span>
+                    <p class="text-xs text-white/70 mt-2 truncate">{{ $user->full_name }}</p>
                 </div>
             </x-slot:footer>
         </x-layout.sidebar>
