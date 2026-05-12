@@ -76,8 +76,9 @@ Route::middleware(['auth', 'admin'])
             });
 
         // Settings
-        Route::get('/settings',    [SettingsController::class, 'index'])->name('settings');
-        Route::patch('/settings',  [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/settings',                [SettingsController::class, 'index'])->name('settings');
+        Route::patch('/settings',              [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/test-email',    [SettingsController::class, 'sendTestEmail'])->name('settings.test-email');
 
         // Account Managers
         Route::controller(AccountManagerController::class)

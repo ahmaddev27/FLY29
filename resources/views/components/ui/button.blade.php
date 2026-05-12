@@ -95,13 +95,17 @@
 --}}
 
 @if($href)
-    {{-- ============== Link variant ============== --}}
+    {{-- ============== Link variant ============== ----
+         Auto-reset loading after 3s — download links (PDF/CSV/Excel) don't
+         trigger a navigation event, so without this timeout the spinner
+         would spin forever. For regular nav links the timeout never fires
+         because the page is gone before it ticks. --}}
     <a
         href="{{ $href }}"
         x-data="{ loading: {{ $initialLoading }}, disabled: {{ $initialDisabled }} }"
         x-on:click="
             if (loading || disabled) { $event.preventDefault(); return; }
-            {{ $autoLoading ? 'loading = true;' : '' }}
+            {{ $autoLoading ? 'loading = true; setTimeout(() => loading = false, 3000);' : '' }}
         "
         x-on:set-loading.stop="loading = $event.detail"
         :class="(loading || disabled) ? 'opacity-75 cursor-wait pointer-events-none' : ''"

@@ -48,6 +48,33 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * Send a test email using the current SMTP settings — admin-only sanity
+     * check that the credentials work before going live.
+     */
+    public function sendTestEmail(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'test_email' => ['required', 'email'],
+        ]);
+
+        // Apply the current DB settings to the runtime mail config.
+        app(\App\Services\MailConfigService::class)->applyFromSettings();
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                "هذه رسالة اختبار من نظام ولاء 29FLY.\n\nإذا وصلتك، فإعدادات SMTP تعمل بشكل صحيح.\n\nتم الإرسال في: " . now()->format('Y-m-d H:i:s'),
+                fn ($m) => $m
+                    ->to($data['test_email'])
+                    ->subject('29FLY · اختبار اتصال SMTP'),
+            );
+        } catch (\Throwable $e) {
+            return back()->withErrors(['test_email' => 'فشل الإرسال: ' . $e->getMessage()]);
+        }
+
+        return back()->with('status', "تم إرسال رسالة اختبار إلى {$data['test_email']}. تحقق من صندوق الوارد (والـ Spam).");
+    }
+
     public function update(Request $request): RedirectResponse
     {
         // Build validation rules dynamically from the settings catalogue.
@@ -57,6 +84,10 @@ class SettingsController extends Controller
 
         foreach ($payload as $key => $value) {
             if (! isset($known[$key])) {
+                continue;
+            }
+            // Skip validation on unchanged-password sentinel — it's just a placeholder.
+            if ($known[$key] === 'password' && $value === '__UNCHANGED__') {
                 continue;
             }
             $rules["settings.{$key}"] = $this->rulesFor($known[$key]);
@@ -110,11 +141,12 @@ class SettingsController extends Controller
     private function rulesFor(string $type): array
     {
         return match ($type) {
-            'int'   => ['required', 'integer'],
-            'float' => ['required', 'numeric'],
-            'bool'  => ['nullable', 'in:0,1,true,false'],
-            'json'  => ['required', 'json'],
-            default => ['required', 'string', 'max:1000'],
+            'int'      => ['required', 'integer'],
+            'float'    => ['required', 'numeric'],
+            'bool'     => ['nullable', 'in:0,1,true,false'],
+            'json'     => ['required', 'json'],
+            'password' => ['nullable', 'string', 'max:500'],
+            default    => ['nullable', 'string', 'max:1000'],
         };
     }
 }

@@ -17,6 +17,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiters();
+        $this->applyDbMailConfig();
+    }
+
+    /**
+     * Override Laravel's SMTP config from system_settings if the admin has
+     * enabled the mail toggle. Wrapped in a try/catch so it doesn't break
+     * early-boot scenarios (e.g. fresh install before migrations).
+     */
+    private function applyDbMailConfig(): void
+    {
+        try {
+            $this->app->make(\App\Services\MailConfigService::class)->applyFromSettings();
+        } catch (\Throwable) {
+            // Settings table not ready yet, or any other boot-time issue.
+        }
     }
 
     /**

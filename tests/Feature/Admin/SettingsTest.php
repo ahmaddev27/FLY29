@@ -149,4 +149,37 @@ class SettingsTest extends TestCase
 
         $this->assertSame($beforeCount, SystemSetting::count());
     }
+
+    public function test_smtp_password_is_encrypted_at_rest_and_decrypted_on_read(): void
+    {
+        $this->actingAsAdmin();
+
+        $this->patch('/admin/settings', [
+            'settings' => ['smtp_password' => 'my-secret-pass-123'],
+        ])->assertRedirect();
+
+        // Raw value in DB is NOT the plaintext
+        $raw = SystemSetting::find('smtp_password')->value;
+        $this->assertNotEquals('my-secret-pass-123', $raw);
+        $this->assertNotEmpty($raw);
+
+        // Service round-trips it
+        $service = app(\App\Services\SettingsService::class);
+        $this->assertSame('my-secret-pass-123', $service->get('smtp_password'));
+    }
+
+    public function test_unchanged_sentinel_does_not_overwrite_smtp_password(): void
+    {
+        $this->actingAsAdmin();
+
+        $service = app(\App\Services\SettingsService::class);
+        $service->set('smtp_password', 'original-pass');
+
+        // Saving form with the sentinel should keep the existing password
+        $this->patch('/admin/settings', [
+            'settings' => ['smtp_password' => '__UNCHANGED__'],
+        ])->assertRedirect();
+
+        $this->assertSame('original-pass', $service->get('smtp_password'));
+    }
 }

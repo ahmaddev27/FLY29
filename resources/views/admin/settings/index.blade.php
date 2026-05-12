@@ -52,6 +52,38 @@
             'label' => 'إجبار 2FA على الأدمن',
             'hint'  => 'يمنع تسجيل دخول الأدمن بدون مصادقة ثنائية',
         ],
+
+        // Mail / SMTP
+        'mail_enabled' => [
+            'label' => 'تفعيل إعدادات SMTP من قاعدة البيانات',
+            'hint'  => 'إذا متوقّف، يستخدم النظام إعدادات .env الافتراضية',
+        ],
+        'mail_from_address' => [
+            'label' => 'بريد المرسل',
+            'hint'  => 'يظهر للمستلم في حقل "From"',
+        ],
+        'mail_from_name' => [
+            'label' => 'اسم المرسل الظاهر',
+        ],
+        'smtp_host' => [
+            'label' => 'SMTP Host',
+            'hint'  => 'مثال: smtp.mailgun.org, smtp.gmail.com',
+        ],
+        'smtp_port' => [
+            'label' => 'SMTP Port',
+            'hint'  => '587 لـ STARTTLS، 465 لـ SSL، 25 بدون تشفير',
+        ],
+        'smtp_username' => [
+            'label' => 'SMTP Username',
+        ],
+        'smtp_password' => [
+            'label' => 'SMTP Password',
+            'hint'  => 'يُخزَّن مشفّراً (AES). اتركه فارغاً لعدم التغيير.',
+        ],
+        'smtp_encryption' => [
+            'label' => 'التشفير',
+            'enum'  => ['tls' => 'TLS (STARTTLS)', 'ssl' => 'SSL', 'none' => 'بدون تشفير'],
+        ],
     ];
 
     // Per-category icon (heroicon paths)
@@ -63,6 +95,7 @@
         'agents'     => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
         'auth'       => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
         'security'   => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+        'mail'       => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
         'general'    => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
     ];
 
@@ -209,6 +242,19 @@
                                                 <x-ui.input type="number" :id="$inputId" :name="$inputName" :value="$value" step="0.01" />
                                             @elseif($setting->value_type === 'json')
                                                 <x-ui.textarea :id="$inputId" :name="$inputName" rows="4" dir="ltr" class="font-latin text-xs">{{ json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</x-ui.textarea>
+                                            @elseif($setting->value_type === 'password')
+                                                {{-- Masked password: never re-render the value. Sentinel says
+                                                     'don't change' unless the admin types something new. --}}
+                                                <x-ui.input
+                                                    type="password"
+                                                    :id="$inputId"
+                                                    :name="$inputName"
+                                                    :value="$value ? '__UNCHANGED__' : ''"
+                                                    autocomplete="new-password"
+                                                    dir="ltr"
+                                                    onfocus="if(this.value==='__UNCHANGED__') this.value='';"
+                                                    onblur="if(this.value==='') this.value='__UNCHANGED__';"
+                                                />
                                             @else
                                                 <x-ui.input :id="$inputId" :name="$inputName" :value="$value" />
                                             @endif
@@ -221,6 +267,7 @@
                                 @endforeach
                             </div>
                         </x-ui.card>
+
                     </div>
                 @endforeach
 
@@ -231,5 +278,39 @@
                 </div>
             </div>
         </div>
+
+        {{-- Floating test-email trigger (only on the mail tab) --}}
+        <div
+            x-show="activeTab === 'mail'"
+            x-cloak
+            x-transition.opacity
+            class="fixed bottom-6 end-6 z-40"
+        >
+            <x-ui.button
+                type="button"
+                variant="warning"
+                :auto-loading="false"
+                x-on:click="$dispatch('open-modal', 'test-email-modal')"
+            >
+                <x-ui.icon name="mail" size="sm" /> إرسال إيميل اختبار
+            </x-ui.button>
+        </div>
     </form>
+
+    <x-ui.modal name="test-email-modal" title="إرسال رسالة اختبار SMTP" size="sm">
+        <form method="POST" action="{{ route('admin.settings.test-email') }}">
+            @csrf
+            <p class="text-sm text-slate-600 mb-3">
+                ستُستخدم الإعدادات المحفوظة حالياً. احفظ التغييرات أولاً إذا أجريت تعديلاً.
+            </p>
+            <x-forms.form-group label="عنوان البريد للاستلام" for="test_email" required>
+                <x-ui.input type="email" id="test_email" name="test_email" dir="ltr" required placeholder="you@example.com" />
+            </x-forms.form-group>
+
+            <x-slot:footer>
+                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'test-email-modal')">إلغاء</x-ui.button>
+                <x-ui.button type="submit" variant="cta">إرسال الاختبار</x-ui.button>
+            </x-slot:footer>
+        </form>
+    </x-ui.modal>
 </x-layouts.admin>

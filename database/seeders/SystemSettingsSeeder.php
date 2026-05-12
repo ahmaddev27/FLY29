@@ -36,6 +36,16 @@ class SystemSettingsSeeder extends Seeder
 
             // 2FA
             ['key' => 'two_factor_required_for_admin', 'value' => 'true',       'value_type' => 'bool',   'category' => 'auth',       'description' => 'Force 2FA for admin/super_admin roles'],
+
+            // Mail / SMTP — override Laravel's mail config at runtime
+            ['key' => 'mail_enabled',          'value' => 'false',              'value_type' => 'bool',     'category' => 'mail', 'description' => 'Master toggle — when off, all mail uses the .env config'],
+            ['key' => 'mail_from_address',     'value' => 'no-reply@29fly.com', 'value_type' => 'string',   'category' => 'mail', 'description' => 'Default sender address'],
+            ['key' => 'mail_from_name',        'value' => '29FLY Loyalty',      'value_type' => 'string',   'category' => 'mail', 'description' => 'Default sender display name'],
+            ['key' => 'smtp_host',             'value' => '',                   'value_type' => 'string',   'category' => 'mail', 'description' => 'SMTP server hostname (e.g. smtp.mailgun.org)'],
+            ['key' => 'smtp_port',             'value' => '587',                'value_type' => 'int',      'category' => 'mail', 'description' => 'SMTP port (587 for STARTTLS, 465 for SSL)'],
+            ['key' => 'smtp_username',         'value' => '',                   'value_type' => 'string',   'category' => 'mail', 'description' => 'SMTP username'],
+            ['key' => 'smtp_password',         'value' => '',                   'value_type' => 'password', 'category' => 'mail', 'description' => 'SMTP password (stored encrypted)'],
+            ['key' => 'smtp_encryption',       'value' => 'tls',                'value_type' => 'string',   'category' => 'mail', 'description' => 'tls / ssl / none'],
         ];
 
         foreach ($settings as $setting) {
