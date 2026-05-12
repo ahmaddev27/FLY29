@@ -279,19 +279,20 @@
             </div>
         </div>
 
-        {{-- Floating test-email trigger (only on the mail tab) --}}
+        {{-- Floating test-email trigger (only on the mail tab).
+             The click handler is on the wrapping div so it bubbles up from
+             the inner button — putting x-on:click on <x-ui.button> directly
+             collides with the component's own click handler (HTML keeps the
+             first duplicate attribute), and the dispatch gets silently
+             dropped. --}}
         <div
             x-show="activeTab === 'mail'"
             x-cloak
             x-transition.opacity
-            class="fixed bottom-6 end-6 z-40"
+            x-on:click="$dispatch('open-modal', 'test-email-modal')"
+            class="fixed bottom-6 end-6 z-40 cursor-pointer"
         >
-            <x-ui.button
-                type="button"
-                variant="warning"
-                :auto-loading="false"
-                x-on:click="$dispatch('open-modal', 'test-email-modal')"
-            >
+            <x-ui.button type="button" variant="warning" :auto-loading="false">
                 <x-ui.icon name="mail" size="sm" /> إرسال إيميل اختبار
             </x-ui.button>
         </div>
