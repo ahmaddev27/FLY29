@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\AgentsImport;
+use App\Mail\AgentWelcomeMail;
 use App\Models\Agent;
 use App\Models\User;
 use App\Services\AuditService;
@@ -11,10 +13,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AgentController extends Controller
 {
@@ -132,8 +137,14 @@ class AgentController extends Controller
             return $agent;
         });
 
-        // Fire the password-setup email (Laravel's built-in reset link)
-        Password::sendResetLink(['email' => $agent->user->email]);
+        // Send a branded welcome email with a password-setup link.
+        $token = Password::broker()->createToken($agent->user);
+        $setupUrl = route('password.reset', [
+            'token' => $token,
+            'email' => $agent->user->email,
+        ]);
+
+        Mail::to($agent->user->email)->send(new AgentWelcomeMail($agent, $setupUrl));
 
         $this->audit->log(
             action: 'agent_created',
@@ -202,6 +213,60 @@ class AgentController extends Controller
         );
 
         return redirect()->route('admin.agents')->with('status', "تم حذف الوكيل «{$name}» (محفوظ في الأرشيف لـ 90 يوم).");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bulk import (Excel/CSV)
+    |--------------------------------------------------------------------------
+    */
+    public function importForm(): View
+    {
+        return view('admin.agents.import');
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'], // 5 MB
+        ]);
+
+        $import = app(AgentsImport::class);
+        Excel::import($import, $request->file('file'));
+
+        $this->audit->log(
+            action: 'agents_imported',
+            entityType: Agent::class,
+            entityId: null,
+            newValues: [
+                'created' => $import->created,
+                'failed'  => count($import->errors),
+            ],
+        );
+
+        return redirect()
+            ->route('admin.agents')
+            ->with('status', "تم استيراد {$import->created} وكيل بنجاح" . (count($import->errors) ? " — فشل " . count($import->errors) . " صف." : "."))
+            ->with('import_errors', $import->errors);
+    }
+
+    public function importTemplate(): BinaryFileResponse
+    {
+        $path = storage_path('app/agents-import-template.csv');
+
+        if (! file_exists($path)) {
+            $header = ['full_name', 'email', 'phone', 'external_agent_id', 'business_name', 'license_number', 'country', 'city', 'current_tier'];
+            $sample = ['Aladin Travel', 'aladin@example.com', '+966500000001', 'AGT-001', 'Aladin Travel Co.', 'LIC-99', 'SA', 'Riyadh', 'bronze'];
+
+            $fp = fopen($path, 'w');
+            // UTF-8 BOM so Excel renders Arabic correctly
+            fwrite($fp, "\xEF\xBB\xBF");
+            fputcsv($fp, $header);
+            fputcsv($fp, $sample);
+            fclose($fp);
+        }
+
+        return response()->download($path, 'agents-import-template.csv');
     }
 
     /**

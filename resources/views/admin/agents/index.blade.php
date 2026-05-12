@@ -30,6 +30,9 @@
         :is-empty="$agents->isEmpty()"
     >
         <x-slot:toolbar>
+            <x-ui.button variant="secondary" size="sm" href="{{ route('admin.agents.import') }}">
+                <x-ui.icon name="upload" size="sm" /> استيراد Excel
+            </x-ui.button>
             <x-ui.button variant="cta" size="sm" href="{{ route('admin.agents.create') }}">
                 <x-ui.icon name="plus" size="sm" /> وكيل جديد
             </x-ui.button>

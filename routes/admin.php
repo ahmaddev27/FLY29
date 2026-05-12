@@ -31,6 +31,9 @@ Route::middleware(['auth', 'admin'])
                 Route::get('/',                       'index');
                 Route::get('/create',                 'create')->name('.create');
                 Route::post('/',                      'store')->name('.store');
+                Route::get('/import',                 'importForm')->name('.import');
+                Route::post('/import',                'import')->name('.import.store');
+                Route::get('/import/template',        'importTemplate')->name('.import.template');
                 Route::get('/{agent}',                'show')->name('.show');
                 Route::patch('/{agent}/suspend',      'suspend')->name('.suspend');
                 Route::patch('/{agent}/unsuspend',    'unsuspend')->name('.unsuspend');
