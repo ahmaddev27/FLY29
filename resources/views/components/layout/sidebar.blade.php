@@ -38,13 +38,22 @@
     <aside
         {{ $attributes->class([
             'flex flex-col text-white',
-            'fixed inset-y-0 start-0 z-40 transition-transform duration-300',
+            'fixed inset-y-0 start-0 z-40',
             'md:sticky md:top-0 md:h-screen',
+            'w-72',
+            // Default state for FIRST PAINT (before Alpine boots):
+            //   mobile  → hidden off-screen (translate-x-full)
+            //   desktop → visible (md:translate-x-0 overrides)
+            // No JS = sidebar still looks correct on every screen.
+            'translate-x-full md:translate-x-0',
+            // Animate only AFTER the page is ready (preload trick suppresses
+            // this on first paint — see app.blade.php / app.css).
+            'transition-transform duration-300',
         ]) }}
-        :style="`background: linear-gradient(180deg, var(--color-primary-800) 0%, var(--color-primary-900) 100%); transform: ${(mobileOpen || isDesktop) ? 'translateX(0)' : 'translateX(100%)'}`"
+        style="background: linear-gradient(180deg, var(--color-primary-800) 0%, var(--color-primary-900) 100%);"
         :class="{
-            'w-72 md:w-72': !collapsed,
-            'w-72 md:w-20': collapsed,
+            '!translate-x-0': mobileOpen,
+            'md:!w-20': collapsed,
         }"
     >
         {{-- Brand --}}
