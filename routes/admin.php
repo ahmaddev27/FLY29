@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\RedemptionController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -127,6 +128,19 @@ Route::middleware(['auth', 'admin'])
         Route::get('/api-logs',           [ApiLogController::class, 'index'])->name('api-logs');
         Route::get('/api-logs/{log}',     [ApiLogController::class, 'show'])->name('api-logs.show');
 
-        // Placeholders (real pages to come)
-        Route::view('/reports',  'placeholders.admin')->name('reports');
+        // Reports
+        Route::controller(ReportController::class)
+            ->prefix('reports')
+            ->name('reports')
+            ->group(function () {
+                Route::get('/',                'index');
+                Route::get('/points',          'points')->name('.points');
+                Route::get('/points/pdf',      'pointsPdf')->name('.points.pdf');
+                Route::get('/sales',           'sales')->name('.sales');
+                Route::get('/sales/pdf',       'salesPdf')->name('.sales.pdf');
+                Route::get('/tiers',           'tiers')->name('.tiers');
+                Route::get('/redemptions',     'redemptions')->name('.redemptions');
+                Route::get('/top-agents',      'topAgents')->name('.top-agents');
+                Route::get('/top-agents/xlsx', 'topAgentsExcel')->name('.top-agents.xlsx');
+            });
     });
