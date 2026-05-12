@@ -20,10 +20,13 @@
         </svg>
     </button>
 
-    {{-- Page title + breadcrumbs --}}
+    {{-- Page title + breadcrumbs (title on top, breadcrumbs below) --}}
     <div class="min-w-0 flex-1">
+        @if($pageTitle)
+            <h1 class="text-base sm:text-xl font-bold text-[var(--color-text-primary)] truncate">{{ $pageTitle }}</h1>
+        @endif
         @if(!empty($breadcrumbs))
-            <nav class="hidden sm:flex items-center gap-1.5 text-xs mb-1.5" aria-label="مسار التنقل">
+            <nav class="hidden sm:flex items-center gap-1.5 text-xs mt-1" aria-label="مسار التنقل">
                 {{-- Home icon as the very first crumb --}}
                 <a href="{{ url('/') }}" class="w-6 h-6 rounded-md text-slate-400 hover:text-[var(--color-primary-600)] hover:bg-slate-100 flex items-center justify-center transition-colors" aria-label="الرئيسية">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -47,9 +50,6 @@
                     @endif
                 @endforeach
             </nav>
-        @endif
-        @if($pageTitle)
-            <h1 class="text-base sm:text-xl font-bold text-[var(--color-text-primary)] truncate">{{ $pageTitle }}</h1>
         @endif
     </div>
 
