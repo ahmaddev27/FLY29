@@ -72,24 +72,29 @@
         </div>
 
         {{-- Bulk reject modal --}}
-        <x-ui.modal name="bulk-reject" title="رفض الطلبات المختارة" size="sm">
-            <form method="POST" action="{{ route('admin.redemptions.bulk-reject') }}">
-                @csrf
-                <template x-for="id in selected" :key="id">
-                    <input type="hidden" name="ids[]" :value="id">
-                </template>
-                <p class="text-sm text-slate-600 mb-3">
-                    سيُسترد لكل وكيل عدد نقاطه المحجوزة، وسيصله إشعار بالسبب.
-                </p>
-                <x-forms.form-group label="سبب الرفض (يطبَّق على الكل)" for="bulk_reason" required>
-                    <x-ui.textarea id="bulk_reason" name="rejection_reason" rows="3" required placeholder="مثلاً: بيانات الحساب البنكي غير صحيحة..." />
-                </x-forms.form-group>
+        <x-ui.modal
+            name="bulk-reject"
+            title="رفض الطلبات المختارة"
+            size="sm"
+            :action="route('admin.redemptions.bulk-reject')"
+            method="POST"
+        >
+            <template x-for="id in selected" :key="id">
+                <input type="hidden" name="ids[]" :value="id">
+            </template>
+            <p class="text-sm text-slate-600 mb-3">
+                سيُسترد لكل وكيل عدد نقاطه المحجوزة، وسيصله إشعار بالسبب.
+            </p>
+            <x-forms.form-group label="سبب الرفض (يطبَّق على الكل)" for="bulk_reason" required>
+                <x-ui.textarea id="bulk_reason" name="rejection_reason" rows="3" required placeholder="مثلاً: بيانات الحساب البنكي غير صحيحة..." />
+            </x-forms.form-group>
 
-                <x-slot:footer>
-                    <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'bulk-reject')">إلغاء</x-ui.button>
-                    <x-ui.button type="submit" variant="danger">تأكيد رفض الجميع</x-ui.button>
-                </x-slot:footer>
-            </form>
+            <x-slot:footer>
+                <div x-on:click="$dispatch('close-modal', 'bulk-reject')" class="inline-block">
+                    <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                </div>
+                <x-ui.button type="submit" variant="danger">تأكيد رفض الجميع</x-ui.button>
+            </x-slot:footer>
         </x-ui.modal>
 
     <x-ui.data-table
@@ -220,27 +225,32 @@
                                     />
 
                                     {{-- Reject modal --}}
-                                    <x-ui.modal :name="'reject-' . $req->id" title="رفض الطلب #{{ $req->id }}" size="sm">
-                                        <form method="POST" action="{{ route('admin.redemptions.reject', $req) }}">
-                                            @csrf
-                                            <p class="text-sm text-slate-600 mb-3">
-                                                سيُسترَدّ <strong dir="ltr">{{ number_format($req->points) }}</strong> نقطة للوكيل ويصله إشعار بالسبب.
-                                            </p>
-                                            <x-forms.form-group label="سبب الرفض" :for="'rejection_reason_' . $req->id" required>
-                                                <x-ui.textarea
-                                                    :id="'rejection_reason_' . $req->id"
-                                                    name="rejection_reason"
-                                                    rows="3"
-                                                    placeholder="يرجى توضيح السبب باختصار..."
-                                                    required
-                                                />
-                                            </x-forms.form-group>
+                                    <x-ui.modal
+                                        :name="'reject-' . $req->id"
+                                        :title="'رفض الطلب #' . $req->id"
+                                        size="sm"
+                                        :action="route('admin.redemptions.reject', $req)"
+                                        method="POST"
+                                    >
+                                        <p class="text-sm text-slate-600 mb-3">
+                                            سيُسترَدّ <strong dir="ltr">{{ number_format($req->points) }}</strong> نقطة للوكيل ويصله إشعار بالسبب.
+                                        </p>
+                                        <x-forms.form-group label="سبب الرفض" :for="'rejection_reason_' . $req->id" required>
+                                            <x-ui.textarea
+                                                :id="'rejection_reason_' . $req->id"
+                                                name="rejection_reason"
+                                                rows="3"
+                                                placeholder="يرجى توضيح السبب باختصار..."
+                                                required
+                                            />
+                                        </x-forms.form-group>
 
-                                            <x-slot:footer>
-                                                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reject-{{ $req->id }}')">إلغاء</x-ui.button>
-                                                <x-ui.button type="submit" variant="danger">تأكيد الرفض</x-ui.button>
-                                            </x-slot:footer>
-                                        </form>
+                                        <x-slot:footer>
+                                            <div x-on:click="$dispatch('close-modal', 'reject-{{ $req->id }}')" class="inline-block">
+                                                <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                                            </div>
+                                            <x-ui.button type="submit" variant="danger">تأكيد الرفض</x-ui.button>
+                                        </x-slot:footer>
                                     </x-ui.modal>
                                 @elseif($req->status === 'approved' && ! $req->fulfilled)
                                     {{-- Approved but not yet fulfilled — show "Mark as fulfilled" --}}
@@ -254,40 +264,45 @@
                                     />
 
                                     {{-- Fulfill modal --}}
-                                    <x-ui.modal :name="'fulfill-' . $req->id" :title="'تأكيد تنفيذ الطلب #' . $req->id" size="sm">
-                                        <form method="POST" action="{{ route('admin.redemptions.fulfill', $req) }}">
-                                            @csrf
-                                            <p class="text-sm text-slate-600 mb-3">
-                                                @if($req->type === 'cash')
-                                                    أكّد أنك حوّلت <strong dir="ltr">${{ number_format($req->cash_value_usd, 2) }}</strong> للوكيل
-                                                    <strong>«{{ $req->agent->business_name }}»</strong>.
-                                                @else
-                                                    أكّد أنك حجزت <strong>«{{ $req->package?->name }}»</strong> للوكيل
-                                                    <strong>«{{ $req->agent->business_name }}»</strong>.
-                                                @endif
-                                            </p>
-                                            <x-forms.form-group
-                                                :label="$req->type === 'cash' ? 'رقم مرجع التحويل البنكي' : 'رقم تأكيد الحجز'"
-                                                :for="'fref_' . $req->id"
-                                                :required="$req->type === 'cash'"
-                                            >
-                                                <x-ui.input
-                                                    :id="'fref_' . $req->id"
-                                                    name="fulfillment_reference"
-                                                    dir="ltr"
-                                                    :placeholder="$req->type === 'cash' ? 'مثال: TXN-2026-0512-9988' : 'مثال: BOOKING-2026-001234'"
-                                                />
-                                            </x-forms.form-group>
+                                    <x-ui.modal
+                                        :name="'fulfill-' . $req->id"
+                                        :title="'تأكيد تنفيذ الطلب #' . $req->id"
+                                        size="sm"
+                                        :action="route('admin.redemptions.fulfill', $req)"
+                                        method="POST"
+                                    >
+                                        <p class="text-sm text-slate-600 mb-3">
+                                            @if($req->type === 'cash')
+                                                أكّد أنك حوّلت <strong dir="ltr">${{ number_format($req->cash_value_usd, 2) }}</strong> للوكيل
+                                                <strong>«{{ $req->agent->business_name }}»</strong>.
+                                            @else
+                                                أكّد أنك حجزت <strong>«{{ $req->package?->name }}»</strong> للوكيل
+                                                <strong>«{{ $req->agent->business_name }}»</strong>.
+                                            @endif
+                                        </p>
+                                        <x-forms.form-group
+                                            :label="$req->type === 'cash' ? 'رقم مرجع التحويل البنكي' : 'رقم تأكيد الحجز'"
+                                            :for="'fref_' . $req->id"
+                                            :required="$req->type === 'cash'"
+                                        >
+                                            <x-ui.input
+                                                :id="'fref_' . $req->id"
+                                                name="fulfillment_reference"
+                                                dir="ltr"
+                                                :placeholder="$req->type === 'cash' ? 'مثال: TXN-2026-0512-9988' : 'مثال: BOOKING-2026-001234'"
+                                            />
+                                        </x-forms.form-group>
 
-                                            <x-forms.form-group label="ملاحظات إضافية (اختياري)" :for="'fnotes_' . $req->id" class="mt-3">
-                                                <x-ui.textarea :id="'fnotes_' . $req->id" name="fulfillment_notes" rows="2" placeholder="أي تفاصيل تضاف للسجل..." />
-                                            </x-forms.form-group>
+                                        <x-forms.form-group label="ملاحظات إضافية (اختياري)" :for="'fnotes_' . $req->id" class="mt-3">
+                                            <x-ui.textarea :id="'fnotes_' . $req->id" name="fulfillment_notes" rows="2" placeholder="أي تفاصيل تضاف للسجل..." />
+                                        </x-forms.form-group>
 
-                                            <x-slot:footer>
-                                                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'fulfill-{{ $req->id }}')">إلغاء</x-ui.button>
-                                                <x-ui.button type="submit" variant="cta">تأكيد التنفيذ</x-ui.button>
-                                            </x-slot:footer>
-                                        </form>
+                                        <x-slot:footer>
+                                            <div x-on:click="$dispatch('close-modal', 'fulfill-{{ $req->id }}')" class="inline-block">
+                                                <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                                            </div>
+                                            <x-ui.button type="submit" variant="cta">تأكيد التنفيذ</x-ui.button>
+                                        </x-slot:footer>
                                     </x-ui.modal>
                                 @elseif($req->status === 'fulfilled')
                                     {{-- Already fulfilled — show reverse option --}}
@@ -300,21 +315,26 @@
                                         x-on:click="$dispatch('open-modal', 'reverse-{{ $req->id }}')"
                                     />
 
-                                    <x-ui.modal :name="'reverse-' . $req->id" :title="'عكس تنفيذ الطلب #' . $req->id" size="sm">
-                                        <form method="POST" action="{{ route('admin.redemptions.reverse-fulfillment', $req) }}">
-                                            @csrf
-                                            <p class="text-sm text-slate-600 mb-3">
-                                                سيعود الطلب لحالة "معتمد" وسيظهر مجدداً في قائمة التنفيذ. الرصيد لا يتغيّر.
-                                            </p>
-                                            <x-forms.form-group label="السبب" :for="'rev_reason_' . $req->id" required>
-                                                <x-ui.textarea :id="'rev_reason_' . $req->id" name="reason" rows="3" required placeholder="مثلاً: التحويل البنكي ارتد للحساب — يجب إعادته." />
-                                            </x-forms.form-group>
+                                    <x-ui.modal
+                                        :name="'reverse-' . $req->id"
+                                        :title="'عكس تنفيذ الطلب #' . $req->id"
+                                        size="sm"
+                                        :action="route('admin.redemptions.reverse-fulfillment', $req)"
+                                        method="POST"
+                                    >
+                                        <p class="text-sm text-slate-600 mb-3">
+                                            سيعود الطلب لحالة "معتمد" وسيظهر مجدداً في قائمة التنفيذ. الرصيد لا يتغيّر.
+                                        </p>
+                                        <x-forms.form-group label="السبب" :for="'rev_reason_' . $req->id" required>
+                                            <x-ui.textarea :id="'rev_reason_' . $req->id" name="reason" rows="3" required placeholder="مثلاً: التحويل البنكي ارتد للحساب — يجب إعادته." />
+                                        </x-forms.form-group>
 
-                                            <x-slot:footer>
-                                                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reverse-{{ $req->id }}')">إلغاء</x-ui.button>
-                                                <x-ui.button type="submit" variant="warning">عكس التنفيذ</x-ui.button>
-                                            </x-slot:footer>
-                                        </form>
+                                        <x-slot:footer>
+                                            <div x-on:click="$dispatch('close-modal', 'reverse-{{ $req->id }}')" class="inline-block">
+                                                <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                                            </div>
+                                            <x-ui.button type="submit" variant="warning">عكس التنفيذ</x-ui.button>
+                                        </x-slot:footer>
                                     </x-ui.modal>
                                 @else
                                     <span class="text-xs text-slate-400">

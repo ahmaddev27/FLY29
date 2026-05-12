@@ -171,34 +171,39 @@
     </div>
 
     {{-- Suggest adjustment modal --}}
-    <x-ui.modal :name="'suggest-adj-' . $agent->id" :title="'اقتراح تعديل لـ ' . $agent->business_name" size="md">
-        <form method="POST" action="{{ route('manager.adjustments.store', $agent) }}">
-            @csrf
-            <div class="mb-3 p-3 rounded-lg bg-sky-50 border border-sky-100 text-sm text-sky-900">
-                <p class="flex items-center gap-2">
-                    <x-ui.icon name="alert-triangle" size="sm" />
-                    <span>هذا اقتراح فقط — لن يُطبَّق على الرصيد حتى يوافق الأدمن.</span>
-                </p>
-            </div>
+    <x-ui.modal
+        :name="'suggest-adj-' . $agent->id"
+        :title="'اقتراح تعديل لـ ' . $agent->business_name"
+        size="md"
+        :action="route('manager.adjustments.store', $agent)"
+        method="POST"
+    >
+        <div class="mb-3 p-3 rounded-lg bg-sky-50 border border-sky-100 text-sm text-sky-900">
+            <p class="flex items-center gap-2">
+                <x-ui.icon name="alert-triangle" size="sm" />
+                <span>هذا اقتراح فقط — لن يُطبَّق على الرصيد حتى يوافق الأدمن.</span>
+            </p>
+        </div>
 
-            <div class="grid sm:grid-cols-2 gap-4">
-                <x-forms.form-group label="المحفظة" for="wallet_type" required>
-                    <x-ui.select id="wallet_type" name="wallet_type" :options="['cash' => 'كاش', 'package' => 'باكجات']" />
-                </x-forms.form-group>
-
-                <x-forms.form-group label="عدد النقاط (موجب أو سالب)" for="points_delta" required>
-                    <x-ui.input type="number" id="points_delta" name="points_delta" step="1" required placeholder="مثلاً: 100 أو -50" />
-                </x-forms.form-group>
-            </div>
-
-            <x-forms.form-group label="السبب" for="adj_reason" required class="mt-4">
-                <x-ui.textarea id="adj_reason" name="reason" rows="3" required placeholder="مكافأة على أداء ممتاز، تعويض عن خطأ سابق، ..." />
+        <div class="grid sm:grid-cols-2 gap-4">
+            <x-forms.form-group label="المحفظة" for="wallet_type" required>
+                <x-ui.select id="wallet_type" name="wallet_type" :options="['cash' => 'كاش', 'package' => 'باكجات']" />
             </x-forms.form-group>
 
-            <x-slot:footer>
-                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'suggest-adj-{{ $agent->id }}')">إلغاء</x-ui.button>
-                <x-ui.button type="submit" variant="cta">إرسال للأدمن</x-ui.button>
-            </x-slot:footer>
-        </form>
+            <x-forms.form-group label="عدد النقاط (موجب أو سالب)" for="points_delta" required>
+                <x-ui.input type="number" id="points_delta" name="points_delta" step="1" required placeholder="مثلاً: 100 أو -50" />
+            </x-forms.form-group>
+        </div>
+
+        <x-forms.form-group label="السبب" for="adj_reason" required class="mt-4">
+            <x-ui.textarea id="adj_reason" name="reason" rows="3" required placeholder="مكافأة على أداء ممتاز، تعويض عن خطأ سابق، ..." />
+        </x-forms.form-group>
+
+        <x-slot:footer>
+            <div x-on:click="$dispatch('close-modal', 'suggest-adj-{{ $agent->id }}')" class="inline-block">
+                <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+            </div>
+            <x-ui.button type="submit" variant="cta">إرسال للأدمن</x-ui.button>
+        </x-slot:footer>
     </x-ui.modal>
 </x-layouts.manager>

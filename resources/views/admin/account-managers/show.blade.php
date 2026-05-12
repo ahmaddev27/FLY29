@@ -166,20 +166,24 @@
 
     {{-- Suspend modal --}}
     @if($manager->status === 'active')
-        <x-ui.modal name="suspend-mgr" title="تعليق {{ $manager->full_name }}" size="sm">
-            <form method="POST" action="{{ route('admin.account-managers.suspend', $manager) }}">
-                @csrf
-                @method('PATCH')
-                <p class="text-sm text-slate-600 mb-3">لن يستطيع المدير الدخول حتى يُلغى التعليق.</p>
-                <x-forms.form-group label="سبب التعليق" for="mgr_reason" required>
-                    <x-ui.textarea id="mgr_reason" name="reason" rows="3" required />
-                </x-forms.form-group>
+        <x-ui.modal
+            name="suspend-mgr"
+            :title="'تعليق ' . $manager->full_name"
+            size="sm"
+            :action="route('admin.account-managers.suspend', $manager)"
+            method="PATCH"
+        >
+            <p class="text-sm text-slate-600 mb-3">لن يستطيع المدير الدخول حتى يُلغى التعليق.</p>
+            <x-forms.form-group label="سبب التعليق" for="mgr_reason" required>
+                <x-ui.textarea id="mgr_reason" name="reason" rows="3" required />
+            </x-forms.form-group>
 
-                <x-slot:footer>
-                    <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'suspend-mgr')">إلغاء</x-ui.button>
-                    <x-ui.button type="submit" variant="warning">تعليق الحساب</x-ui.button>
-                </x-slot:footer>
-            </form>
+            <x-slot:footer>
+                <div x-on:click="$dispatch('close-modal', 'suspend-mgr')" class="inline-block">
+                    <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                </div>
+                <x-ui.button type="submit" variant="warning">تعليق الحساب</x-ui.button>
+            </x-slot:footer>
         </x-ui.modal>
     @endif
 

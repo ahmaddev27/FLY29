@@ -3,6 +3,8 @@
     'title'   => null,
     'size'    => 'md', // sm | md | lg | xl
     'closeOnBackdrop' => true,
+    'action'  => null,   // optional URL — when set, modal renders as a form
+    'method'  => 'POST', // POST | PUT | PATCH | DELETE
 ])
 
 @php
@@ -12,6 +14,11 @@
         'lg' => 'max-w-2xl',
         'xl' => 'max-w-4xl',
     ];
+
+    $hasForm  = ! empty($action);
+    $methodU  = strtoupper($method);
+    $useSpoof = $hasForm && ! in_array($methodU, ['GET', 'POST'], true);
+    $formAttr = $hasForm ? ($methodU === 'GET' ? 'GET' : 'POST') : null;
 @endphp
 
 <div
@@ -52,6 +59,16 @@
             x-on:click.stop
             class="relative bg-white rounded-[var(--radius-lg)] shadow-[var(--shadow-modal)] w-full {{ $sizes[$size] ?? $sizes['md'] }}"
         >
+            @if($hasForm)
+                {{-- Form mode: wrap header + body + footer all inside <form>
+                     so the submit button in <x-slot:footer> reaches the form. --}}
+                <form method="{{ $formAttr }}" action="{{ $action }}">
+                    @csrf
+                    @if($useSpoof)
+                        @method($methodU)
+                    @endif
+            @endif
+
             {{-- Header --}}
             @if($title)
                 <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-[var(--color-surface-divider)]">
@@ -80,6 +97,10 @@
                     {{ $footer }}
                 </div>
             @endisset
+
+            @if($hasForm)
+                </form>
+            @endif
         </div>
     </div>
 </div>

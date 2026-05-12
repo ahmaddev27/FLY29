@@ -257,22 +257,26 @@
 
     {{-- Suspend modal --}}
     @if($agent->user && $agent->user->status === 'active')
-        <x-ui.modal name="suspend-modal" title="تعليق {{ $agent->business_name }}" size="sm">
-            <form method="POST" action="{{ route('admin.agents.suspend', $agent) }}">
-                @csrf
-                @method('PATCH')
-                <p class="text-sm text-slate-600 mb-3">
-                    الوكيل لن يستطيع الدخول أو استلام نقاط جديدة حتى تُلغي التعليق.
-                </p>
-                <x-forms.form-group label="سبب التعليق" for="reason" required>
-                    <x-ui.textarea id="reason" name="reason" rows="3" required placeholder="مخالفة، انتهاء عقد، ..." />
-                </x-forms.form-group>
+        <x-ui.modal
+            name="suspend-modal"
+            :title="'تعليق ' . $agent->business_name"
+            size="sm"
+            :action="route('admin.agents.suspend', $agent)"
+            method="PATCH"
+        >
+            <p class="text-sm text-slate-600 mb-3">
+                الوكيل لن يستطيع الدخول أو استلام نقاط جديدة حتى تُلغي التعليق.
+            </p>
+            <x-forms.form-group label="سبب التعليق" for="reason" required>
+                <x-ui.textarea id="reason" name="reason" rows="3" required placeholder="مخالفة، انتهاء عقد، ..." />
+            </x-forms.form-group>
 
-                <x-slot:footer>
-                    <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'suspend-modal')">إلغاء</x-ui.button>
-                    <x-ui.button type="submit" variant="warning">تعليق الحساب</x-ui.button>
-                </x-slot:footer>
-            </form>
+            <x-slot:footer>
+                <div x-on:click="$dispatch('close-modal', 'suspend-modal')" class="inline-block">
+                    <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                </div>
+                <x-ui.button type="submit" variant="warning">تعليق الحساب</x-ui.button>
+            </x-slot:footer>
         </x-ui.modal>
     @endif
 
@@ -280,10 +284,14 @@
     @php
         $threshold = (int) app(\App\Services\SettingsService::class)->get('dual_approval_threshold', 500);
     @endphp
-    <x-ui.modal :name="'adjust-wallet-' . $agent->id" title="تعديل يدوي لنقاط {{ $agent->business_name }}" size="md">
-        <form method="POST" action="{{ route('admin.adjustments.store', $agent) }}" x-data="{ delta: 0 }">
-            @csrf
-
+    <x-ui.modal
+        :name="'adjust-wallet-' . $agent->id"
+        :title="'تعديل يدوي لنقاط ' . $agent->business_name"
+        size="md"
+        :action="route('admin.adjustments.store', $agent)"
+        method="POST"
+    >
+        <div x-data="{ delta: 0 }">
             <div class="mb-3 p-3 rounded-lg bg-sky-50 border border-sky-100 text-sm text-sky-900">
                 <p class="flex items-center gap-2">
                     <x-ui.icon name="alert-triangle" size="sm" />
@@ -313,7 +321,6 @@
                 <x-ui.textarea id="adj_reason" name="reason" rows="3" required placeholder="مكافأة، تعويض عن خطأ، تصحيح، ..." />
             </x-forms.form-group>
 
-            {{-- Impact preview --}}
             <div
                 x-show="delta !== 0"
                 x-cloak
@@ -330,12 +337,14 @@
                     ⚠ هذا التعديل (<span x-text="Math.abs(delta).toLocaleString()" class="font-latin font-bold"></span> نقطة) أكبر من الحد. سيُرسل لقائمة الموافقة ولن يتغير الرصيد حتى يوافق سوبر أدمن.
                 </p>
             </div>
+        </div>
 
-            <x-slot:footer>
-                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'adjust-wallet-{{ $agent->id }}')">إلغاء</x-ui.button>
-                <x-ui.button type="submit" variant="cta">حفظ التعديل</x-ui.button>
-            </x-slot:footer>
-        </form>
+        <x-slot:footer>
+            <div x-on:click="$dispatch('close-modal', 'adjust-wallet-{{ $agent->id }}')" class="inline-block">
+                <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+            </div>
+            <x-ui.button type="submit" variant="cta">حفظ التعديل</x-ui.button>
+        </x-slot:footer>
     </x-ui.modal>
 
 </x-layouts.admin>

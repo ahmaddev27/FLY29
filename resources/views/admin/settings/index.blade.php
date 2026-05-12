@@ -298,20 +298,25 @@
         </div>
     </form>
 
-    <x-ui.modal name="test-email-modal" title="إرسال رسالة اختبار SMTP" size="sm">
-        <form method="POST" action="{{ route('admin.settings.test-email') }}">
-            @csrf
-            <p class="text-sm text-slate-600 mb-3">
-                ستُستخدم الإعدادات المحفوظة حالياً. احفظ التغييرات أولاً إذا أجريت تعديلاً.
-            </p>
-            <x-forms.form-group label="عنوان البريد للاستلام" for="test_email" required>
-                <x-ui.input type="email" id="test_email" name="test_email" dir="ltr" required placeholder="you@example.com" />
-            </x-forms.form-group>
+    <x-ui.modal
+        name="test-email-modal"
+        title="إرسال رسالة اختبار SMTP"
+        size="sm"
+        :action="route('admin.settings.test-email')"
+        method="POST"
+    >
+        <p class="text-sm text-slate-600 mb-3">
+            ستُستخدم الإعدادات المحفوظة حالياً. احفظ التغييرات أولاً إذا أجريت تعديلاً.
+        </p>
+        <x-forms.form-group label="عنوان البريد للاستلام" for="test_email" required>
+            <x-ui.input type="email" id="test_email" name="test_email" dir="ltr" required placeholder="you@example.com" />
+        </x-forms.form-group>
 
-            <x-slot:footer>
-                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'test-email-modal')">إلغاء</x-ui.button>
-                <x-ui.button type="submit" variant="cta">إرسال الاختبار</x-ui.button>
-            </x-slot:footer>
-        </form>
+        <x-slot:footer>
+            <div x-on:click="$dispatch('close-modal', 'test-email-modal')" class="inline-block">
+                <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+            </div>
+            <x-ui.button type="submit" variant="cta">إرسال الاختبار</x-ui.button>
+        </x-slot:footer>
     </x-ui.modal>
 </x-layouts.admin>

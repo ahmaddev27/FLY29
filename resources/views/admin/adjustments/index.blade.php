@@ -147,41 +147,51 @@
         @foreach($adjustments as $adj)
             @if($adj->status === 'pending' && $canApprove && $adj->requested_by !== $user->id)
                 {{-- Approve modal --}}
-                <x-ui.modal :name="'approve-' . $adj->id" title="اعتماد التعديل" size="sm">
-                    <form method="POST" action="{{ route('admin.adjustments.approve', $adj) }}">
-                        @csrf
-                        <p class="text-sm text-slate-700 mb-3">
-                            ستطبّق <strong>{{ $adj->points_delta > 0 ? 'إضافة' : 'خصم' }} {{ number_format(abs($adj->points_delta)) }} نقطة</strong>
-                            على محفظة <strong>{{ $adj->wallet_type === 'cash' ? 'الكاش' : 'الباكجات' }}</strong>
-                            للوكيل <strong>«{{ $adj->agent->business_name }}»</strong> فوراً.
-                        </p>
-                        <x-forms.form-group label="ملاحظة (اختياري)" :for="'a_notes_' . $adj->id">
-                            <x-ui.textarea :id="'a_notes_' . $adj->id" name="notes" rows="2" placeholder="ملاحظات للسجل..." />
-                        </x-forms.form-group>
+                <x-ui.modal
+                    :name="'approve-' . $adj->id"
+                    title="اعتماد التعديل"
+                    size="sm"
+                    :action="route('admin.adjustments.approve', $adj)"
+                    method="POST"
+                >
+                    <p class="text-sm text-slate-700 mb-3">
+                        ستطبّق <strong>{{ $adj->points_delta > 0 ? 'إضافة' : 'خصم' }} {{ number_format(abs($adj->points_delta)) }} نقطة</strong>
+                        على محفظة <strong>{{ $adj->wallet_type === 'cash' ? 'الكاش' : 'الباكجات' }}</strong>
+                        للوكيل <strong>«{{ $adj->agent->business_name }}»</strong> فوراً.
+                    </p>
+                    <x-forms.form-group label="ملاحظة (اختياري)" :for="'a_notes_' . $adj->id">
+                        <x-ui.textarea :id="'a_notes_' . $adj->id" name="notes" rows="2" placeholder="ملاحظات للسجل..." />
+                    </x-forms.form-group>
 
-                        <x-slot:footer>
-                            <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'approve-{{ $adj->id }}')">إلغاء</x-ui.button>
-                            <x-ui.button type="submit" variant="cta">تأكيد الاعتماد</x-ui.button>
-                        </x-slot:footer>
-                    </form>
+                    <x-slot:footer>
+                        <div x-on:click="$dispatch('close-modal', 'approve-{{ $adj->id }}')" class="inline-block">
+                            <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                        </div>
+                        <x-ui.button type="submit" variant="cta">تأكيد الاعتماد</x-ui.button>
+                    </x-slot:footer>
                 </x-ui.modal>
 
                 {{-- Reject modal --}}
-                <x-ui.modal :name="'reject-' . $adj->id" title="رفض التعديل" size="sm">
-                    <form method="POST" action="{{ route('admin.adjustments.reject', $adj) }}">
-                        @csrf
-                        <p class="text-sm text-slate-700 mb-3">
-                            سيُرفض الطلب ولن يتم تغيير الرصيد. السبب يُحفظ في السجل.
-                        </p>
-                        <x-forms.form-group label="سبب الرفض" :for="'r_notes_' . $adj->id" required>
-                            <x-ui.textarea :id="'r_notes_' . $adj->id" name="notes" rows="3" required placeholder="مثلاً: الطلب غير مبرر / مكرر..." />
-                        </x-forms.form-group>
+                <x-ui.modal
+                    :name="'reject-' . $adj->id"
+                    title="رفض التعديل"
+                    size="sm"
+                    :action="route('admin.adjustments.reject', $adj)"
+                    method="POST"
+                >
+                    <p class="text-sm text-slate-700 mb-3">
+                        سيُرفض الطلب ولن يتم تغيير الرصيد. السبب يُحفظ في السجل.
+                    </p>
+                    <x-forms.form-group label="سبب الرفض" :for="'r_notes_' . $adj->id" required>
+                        <x-ui.textarea :id="'r_notes_' . $adj->id" name="notes" rows="3" required placeholder="مثلاً: الطلب غير مبرر / مكرر..." />
+                    </x-forms.form-group>
 
-                        <x-slot:footer>
-                            <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reject-{{ $adj->id }}')">إلغاء</x-ui.button>
-                            <x-ui.button type="submit" variant="danger">رفض الطلب</x-ui.button>
-                        </x-slot:footer>
-                    </form>
+                    <x-slot:footer>
+                        <div x-on:click="$dispatch('close-modal', 'reject-{{ $adj->id }}')" class="inline-block">
+                            <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                        </div>
+                        <x-ui.button type="submit" variant="danger">رفض الطلب</x-ui.button>
+                    </x-slot:footer>
                 </x-ui.modal>
             @endif
         @endforeach

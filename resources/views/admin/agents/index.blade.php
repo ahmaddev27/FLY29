@@ -120,28 +120,32 @@
 
                             {{-- Suspend modal --}}
                             @if($agent->user && $agent->user->status === 'active')
-                                <x-ui.modal :name="'suspend-' . $agent->id" title="تعليق {{ $agent->business_name }}" size="sm">
-                                    <form method="POST" action="{{ route('admin.agents.suspend', $agent) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <p class="text-sm text-slate-600 mb-3">
-                                            الوكيل لن يستطيع الدخول أو استلام نقاط جديدة حتى تُلغي التعليق.
-                                        </p>
-                                        <x-forms.form-group label="سبب التعليق" :for="'reason_' . $agent->id" required>
-                                            <x-ui.textarea
-                                                :id="'reason_' . $agent->id"
-                                                name="reason"
-                                                rows="3"
-                                                required
-                                                placeholder="مخالفة، انتهاء عقد، ..."
-                                            />
-                                        </x-forms.form-group>
+                                <x-ui.modal
+                                    :name="'suspend-' . $agent->id"
+                                    :title="'تعليق ' . $agent->business_name"
+                                    size="sm"
+                                    :action="route('admin.agents.suspend', $agent)"
+                                    method="PATCH"
+                                >
+                                    <p class="text-sm text-slate-600 mb-3">
+                                        الوكيل لن يستطيع الدخول أو استلام نقاط جديدة حتى تُلغي التعليق.
+                                    </p>
+                                    <x-forms.form-group label="سبب التعليق" :for="'reason_' . $agent->id" required>
+                                        <x-ui.textarea
+                                            :id="'reason_' . $agent->id"
+                                            name="reason"
+                                            rows="3"
+                                            required
+                                            placeholder="مخالفة، انتهاء عقد، ..."
+                                        />
+                                    </x-forms.form-group>
 
-                                        <x-slot:footer>
-                                            <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'suspend-{{ $agent->id }}')">إلغاء</x-ui.button>
-                                            <x-ui.button type="submit" variant="warning">تعليق الحساب</x-ui.button>
-                                        </x-slot:footer>
-                                    </form>
+                                    <x-slot:footer>
+                                        <div x-on:click="$dispatch('close-modal', 'suspend-{{ $agent->id }}')" class="inline-block">
+                                            <x-ui.button type="button" variant="secondary" :auto-loading="false">إلغاء</x-ui.button>
+                                        </div>
+                                        <x-ui.button type="submit" variant="warning">تعليق الحساب</x-ui.button>
+                                    </x-slot:footer>
                                 </x-ui.modal>
                             @endif
                         </td>
