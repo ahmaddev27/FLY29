@@ -70,8 +70,18 @@ class AuthService
 
     public function sendPasswordResetLink(string $email): bool
     {
-        // Always return true to avoid email enumeration.
-        $status = Password::sendResetLink(['email' => $email]);
+        // Always return true to avoid email enumeration AND to keep the
+        // page resilient when SMTP is misconfigured (e.g. Resend testing
+        // mode rejects unverified domains, network errors, etc.).
+        try {
+            $status = Password::sendResetLink(['email' => $email]);
+        } catch (\Throwable $e) {
+            // Log + swallow — we don't want a 500 on the forgot-password page.
+            \Illuminate\Support\Facades\Log::error('Password reset mail failed: ' . $e->getMessage(), [
+                'email' => $email,
+            ]);
+            $status = Password::INVALID_USER; // any non-RESET_LINK_SENT value
+        }
 
         $user = User::where('email', $email)->first();
         if ($user) {
