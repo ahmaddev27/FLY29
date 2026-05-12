@@ -11,22 +11,53 @@
 ])
 
 @php
-    $base = 'relative inline-flex items-center justify-center gap-2 font-medium rounded-[var(--radius-sm)] '
-          . 'transition-base disabled:opacity-50 disabled:cursor-not-allowed select-none';
+    $base = 'group/btn relative inline-flex items-center justify-center gap-2 font-semibold rounded-xl '
+          . 'transition-all duration-150 ease-out select-none whitespace-nowrap '
+          . 'focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-0 '
+          . 'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:!translate-y-0 disabled:hover:!shadow-none '
+          . 'active:translate-y-0 active:scale-[0.98]';
 
     $sizes = [
-        'sm' => 'px-3 py-1.5 text-sm min-h-[32px]',
-        'md' => 'px-4 py-2 text-base min-h-[40px]',
-        'lg' => 'px-6 py-3 text-lg min-h-[48px]',
+        'sm' => 'px-3.5 py-1.5 text-sm min-h-[34px]',
+        'md' => 'px-4 py-2 text-sm min-h-[40px]',
+        'lg' => 'px-5 py-2.5 text-base min-h-[46px]',
     ];
 
+    // Each variant: solid colour with a subtle inset highlight + glow that
+    // grows on hover. Hover lifts the button by 1px. Active resets the lift
+    // and applies a slight squash via active:scale on the base.
     $variants = [
-        'primary'   => 'bg-[var(--color-primary-500)] text-white hover:bg-[var(--color-primary-600)] active:bg-[var(--color-primary-700)]',
-        'secondary' => 'bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-divider)]',
-        'cta'       => 'bg-[var(--color-cta-500)] text-white hover:bg-[var(--color-cta-600)] active:bg-[var(--color-cta-700)]',
-        'danger'    => 'bg-[var(--color-danger-500)] text-white hover:bg-[var(--color-danger-600)] active:bg-[var(--color-danger-700)]',
-        'ghost'     => 'text-[var(--color-text-primary)] hover:bg-[var(--color-surface-divider)]',
-        'outline'   => 'bg-transparent text-[var(--color-primary-500)] border border-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)]',
+        'primary'   => 'bg-[var(--color-primary-500)] text-white '
+                     . 'shadow-[0_2px_4px_-1px_rgba(0,102,204,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'hover:bg-[var(--color-primary-600)] hover:-translate-y-0.5 '
+                     . 'hover:shadow-[0_8px_20px_-4px_rgba(0,102,204,0.4),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'focus-visible:ring-[var(--color-primary-200)]',
+
+        'cta'       => 'bg-[var(--color-cta-500)] text-white '
+                     . 'shadow-[0_2px_4px_-1px_rgba(16,185,129,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'hover:bg-[var(--color-cta-600)] hover:-translate-y-0.5 '
+                     . 'hover:shadow-[0_8px_20px_-4px_rgba(16,185,129,0.4),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'focus-visible:ring-emerald-200',
+
+        'danger'    => 'bg-[var(--color-danger-500)] text-white '
+                     . 'shadow-[0_2px_4px_-1px_rgba(239,68,68,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'hover:bg-[var(--color-danger-600)] hover:-translate-y-0.5 '
+                     . 'hover:shadow-[0_8px_20px_-4px_rgba(239,68,68,0.4),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'focus-visible:ring-rose-200',
+
+        'secondary' => 'bg-white text-slate-700 ring-1 ring-slate-200 '
+                     . 'shadow-[0_1px_2px_rgba(0,0,0,0.05)] '
+                     . 'hover:bg-slate-50 hover:ring-slate-300 hover:-translate-y-0.5 '
+                     . 'hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] '
+                     . 'focus-visible:ring-slate-200',
+
+        'outline'   => 'bg-transparent text-[var(--color-primary-600)] ring-1.5 ring-[var(--color-primary-500)]/40 '
+                     . 'hover:bg-[var(--color-primary-50)] hover:ring-[var(--color-primary-500)] '
+                     . 'focus-visible:ring-[var(--color-primary-200)]',
+
+        'ghost'     => 'bg-transparent text-slate-600 '
+                     . 'hover:bg-slate-100 hover:text-slate-900 '
+                     . 'focus-visible:ring-slate-200',
     ];
 
     $width   = $full ? 'w-full' : '';

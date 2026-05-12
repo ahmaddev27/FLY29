@@ -17,17 +17,18 @@
     ];
 
     $variants = [
-        'ghost'   => 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] hover:text-[var(--color-text-primary)]',
-        'primary' => 'text-[var(--color-primary-600)] hover:bg-[var(--color-primary-50)]',
-        'danger'  => 'text-[var(--color-danger-600)] hover:bg-[var(--color-danger-50)]',
-        'success' => 'text-[var(--color-success-700)] hover:bg-[var(--color-success-50)]',
-        'warning' => 'text-[var(--color-warning-700)] hover:bg-[var(--color-warning-50)]',
+        'ghost'   => 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:ring-slate-200',
+        'primary' => 'text-[var(--color-primary-600)] hover:bg-[var(--color-primary-50)] focus-visible:ring-[var(--color-primary-200)]',
+        'danger'  => 'text-[var(--color-danger-600)] hover:bg-[var(--color-danger-50)] focus-visible:ring-rose-200',
+        'success' => 'text-emerald-600 hover:bg-emerald-50 focus-visible:ring-emerald-200',
+        'warning' => 'text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-200',
     ];
 
     $s = $sizes[$size] ?? $sizes['md'];
     $classes = collect([
-        'inline-flex items-center justify-center rounded-[var(--radius-sm)] transition-base align-middle',
-        'focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]',
+        'inline-flex items-center justify-center rounded-lg transition-all duration-150 align-middle',
+        'focus:outline-none focus-visible:ring-4',
+        'active:scale-90',
         'disabled:opacity-40 disabled:cursor-not-allowed',
         $s['btn'],
         $variants[$variant] ?? $variants['ghost'],
