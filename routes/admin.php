@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AgentController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\RedemptionController;
 use Illuminate\Support\Facades\Route;
@@ -18,8 +20,23 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        // Dashboard (real one to come)
-        Route::view('/dashboard', 'placeholders.admin')->name('dashboard');
+        // Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Agents management
+        Route::controller(AgentController::class)
+            ->prefix('agents')
+            ->name('agents')
+            ->group(function () {
+                Route::get('/',                       'index');
+                Route::get('/create',                 'create')->name('.create');
+                Route::post('/',                      'store')->name('.store');
+                Route::get('/{agent}',                'show')->name('.show');
+                Route::patch('/{agent}/suspend',      'suspend')->name('.suspend');
+                Route::patch('/{agent}/unsuspend',    'unsuspend')->name('.unsuspend');
+                Route::patch('/{agent}/notes',        'updateNotes')->name('.notes');
+                Route::delete('/{agent}',             'destroy')->name('.destroy');
+            });
 
         // Redemption requests review + approve/reject
         Route::controller(RedemptionController::class)
@@ -46,7 +63,6 @@ Route::middleware(['auth', 'admin'])
             });
 
         // Placeholders (real pages to come)
-        Route::view('/agents',   'placeholders.admin')->name('agents');
         Route::view('/reports',  'placeholders.admin')->name('reports');
         Route::view('/settings', 'placeholders.admin')->name('settings');
         Route::view('/audit',    'placeholders.admin')->name('audit');

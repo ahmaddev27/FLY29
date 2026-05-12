@@ -1,6 +1,23 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import {
+    Chart,
+    LineController, BarController, DoughnutController,
+    LineElement, PointElement, BarElement, ArcElement,
+    CategoryScale, LinearScale,
+    Tooltip, Legend, Filler,
+} from 'chart.js';
+
+Chart.register(
+    LineController, BarController, DoughnutController,
+    LineElement, PointElement, BarElement, ArcElement,
+    CategoryScale, LinearScale,
+    Tooltip, Legend, Filler,
+);
+Chart.defaults.font.family = 'Cairo, Tahoma, sans-serif';
+Chart.defaults.color = '#475569'; // slate-600
+window.Chart = Chart;
+import {
     initFirebase,
     listenToNotifications,
     listenToMessages,

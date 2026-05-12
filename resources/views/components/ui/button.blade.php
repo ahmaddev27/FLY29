@@ -45,6 +45,12 @@
                      . 'hover:shadow-[0_8px_20px_-4px_rgba(239,68,68,0.4),inset_0_1px_0_rgba(255,255,255,0.12)] '
                      . 'focus-visible:ring-rose-200',
 
+        'warning'   => 'bg-amber-500 text-white '
+                     . 'shadow-[0_2px_4px_-1px_rgba(245,158,11,0.25),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'hover:bg-amber-600 hover:-translate-y-0.5 '
+                     . 'hover:shadow-[0_8px_20px_-4px_rgba(245,158,11,0.4),inset_0_1px_0_rgba(255,255,255,0.12)] '
+                     . 'focus-visible:ring-amber-200',
+
         'secondary' => 'bg-white text-slate-700 ring-1 ring-slate-200 '
                      . 'shadow-[0_1px_2px_rgba(0,0,0,0.05)] '
                      . 'hover:bg-slate-50 hover:ring-slate-300 hover:-translate-y-0.5 '
