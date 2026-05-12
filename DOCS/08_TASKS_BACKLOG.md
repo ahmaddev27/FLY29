@@ -380,6 +380,16 @@
 - [ ] **T-292** — Feature Test: Audit log يلتقط كل العمليات الحساسة.
 - [ ] **T-293** — Feature Test: Super Admin فقط يرى Audit Log.
 
+### 📦 Fulfillment Tracking (إضافة لاحقة لإغلاق دورة الـ Redemption)
+
+- [ ] **T-293a** — Migration: إضافة `fulfillment_reference`, `fulfillment_notes`, `fulfilled_by` لجدول `redemption_requests` (الحقول الأخرى `fulfilled` + `fulfilled_at` موجودة فعلاً).
+- [ ] **T-293b** — `RedemptionService::fulfill(RedemptionRequest, User $admin, string $reference, ?string $notes)` يضبط fulfilled=true + status=fulfilled + يسجّل في audit_log.
+- [ ] **T-293c** — `Admin\RedemptionController::fulfill()` + route `POST /admin/redemptions/{id}/fulfill`.
+- [ ] **T-293d** — UI الأدمن: زر "تم الدفع/الحجز" يظهر للطلبات المعتمدة (status=approved + fulfilled=false). Modal فيه: مرجع التحويل/الحجز (إجباري) + ملاحظات (اختياري).
+- [ ] **T-293e** — صفحة الوكيل "طلباتي": إظهار حالة fulfilled مع المرجع وتاريخ التنفيذ.
+- [ ] **T-293f** — `FulfillmentNotification` (Sprint 2.3): إشعار للوكيل عند fulfilled.
+- [ ] **T-293g** — Feature Tests: fulfill يحدّث الحالة، يرفض غير المعتمدة، يتطلب reference.
+
 ---
 
 ## 🟢 Phase 4: مدير الحساب والتقارير — أسابيع 11-12
