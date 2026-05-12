@@ -81,6 +81,57 @@
 
             {{-- Page content (flash messages bubble up via global toaster) --}}
             <main class="flex-1 px-3 sm:px-6 py-4 sm:py-6">
+                {{-- Active announcement banners (per-agent, dismissible) --}}
+                @if($agent)
+                    @php
+                        $announcements = \App\Models\Announcement::query()
+                            ->active()
+                            ->forAgent($agent)
+                            ->whereDoesntHave('reads', fn ($q) => $q->where('agent_id', $agent->id))
+                            ->latest()
+                            ->limit(3)
+                            ->get();
+                    @endphp
+
+                    @foreach($announcements as $announcement)
+                        @php
+                            $bannerClass = match($announcement->variant) {
+                                'success' => 'border-emerald-300 bg-emerald-50',
+                                'warning' => 'border-amber-300 bg-amber-50',
+                                'danger'  => 'border-rose-300 bg-rose-50',
+                                default   => 'border-sky-300 bg-sky-50',
+                            };
+                            $titleClass = match($announcement->variant) {
+                                'success' => 'text-emerald-900',
+                                'warning' => 'text-amber-900',
+                                'danger'  => 'text-rose-900',
+                                default   => 'text-sky-900',
+                            };
+                        @endphp
+                        <div @class([
+                            'mb-4 rounded-xl border-s-4 p-4 flex items-start gap-3',
+                            $bannerClass,
+                        ])>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold {{ $titleClass }} text-sm">{{ $announcement->title }}</h3>
+                                <p class="text-sm text-slate-700 mt-1 leading-relaxed whitespace-pre-wrap">{{ $announcement->body }}</p>
+                            </div>
+                            <form method="POST" action="{{ route('agent.announcements.dismiss', $announcement) }}" class="flex-shrink-0">
+                                @csrf
+                                <button
+                                    type="submit"
+                                    class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 flex items-center justify-center transition-base"
+                                    aria-label="إغلاق"
+                                >
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    @endforeach
+                @endif
+
                 {{ $slot }}
             </main>
         </div>

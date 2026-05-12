@@ -26,6 +26,7 @@
         ['label' => 'مدراء الحسابات', 'route' => 'admin.account-managers',  'icon' => $iconAgents],
         ['label' => 'الطلبات',      'route' => 'admin.redemptions',       'icon' => $iconRequests, 'badge' => $pendingCount > 0 ? $pendingCount : null],
         ['label' => 'التعديلات',    'route' => 'admin.adjustments',       'icon' => $iconAdjust,   'badge' => $pendingAdjustCount > 0 ? $pendingAdjustCount : null],
+        ['label' => 'الإعلانات',     'route' => 'admin.announcements',     'icon' => $iconRequests],
         ['label' => 'الباكجات',     'route' => 'admin.packages',          'icon' => $iconPackages],
         ['label' => 'التقارير',     'route' => 'admin.reports',           'icon' => $iconReports],
         ['label' => 'الإعدادات',    'route' => 'admin.settings',          'icon' => $iconSettings],

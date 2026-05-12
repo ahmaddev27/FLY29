@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AccountManagerController;
 use App\Http\Controllers\Admin\AdjustmentController;
 use App\Http\Controllers\Admin\AgentController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\ApiLogController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -102,6 +103,18 @@ Route::middleware(['auth', 'admin'])
                 Route::post('/{adjustment}/approve',  'approve')->name('.approve');
                 Route::post('/{adjustment}/reject',   'reject')->name('.reject');
                 Route::post('/{adjustment}/cancel',   'cancel')->name('.cancel');
+            });
+
+        // Announcements (broadcast to agents)
+        Route::controller(AnnouncementController::class)
+            ->prefix('announcements')
+            ->name('announcements')
+            ->group(function () {
+                Route::get('/',                        'index');
+                Route::get('/create',                  'create')->name('.create');
+                Route::post('/',                       'store')->name('.store');
+                Route::patch('/{announcement}/toggle', 'toggle')->name('.toggle');
+                Route::delete('/{announcement}',       'destroy')->name('.destroy');
             });
 
         // Audit log (super_admin only — enforced inside controller)

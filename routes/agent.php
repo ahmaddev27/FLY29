@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Agent\AnnouncementController;
 use App\Http\Controllers\Agent\DashboardController;
 use App\Http\Controllers\Agent\NotificationPreferencesController;
 use App\Http\Controllers\Agent\PackageController;
@@ -69,6 +70,10 @@ Route::middleware(['auth', 'agent'])
                 Route::get('/export/excel',  'exportExcel')->name('.export.excel');
                 Route::get('/export/pdf',    'exportPdf')->name('.export.pdf');
             });
+
+        // Dismiss announcement banner
+        Route::post('/announcements/{announcement}/dismiss', [AnnouncementController::class, 'dismiss'])
+            ->name('announcements.dismiss');
 
         // Placeholders (real pages to come)
         Route::view('/wallets',  'placeholders.agent')->name('wallets');
