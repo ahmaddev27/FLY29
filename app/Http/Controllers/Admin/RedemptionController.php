@@ -91,6 +91,54 @@ class RedemptionController extends Controller
     }
 
     /**
+     * Mark an approved redemption as fulfilled (paid/booked).
+     */
+    public function fulfill(Request $request, RedemptionRequest $redemption): RedirectResponse
+    {
+        $isCash = $redemption->type === 'cash';
+
+        $data = $request->validate([
+            'fulfillment_reference' => [$isCash ? 'required' : 'nullable', 'string', 'max:150'],
+            'fulfillment_notes'     => ['nullable', 'string', 'max:1000'],
+        ], [
+            'fulfillment_reference.required' => 'رقم مرجع التحويل البنكي مطلوب للنقدي.',
+        ]);
+
+        try {
+            $this->service->fulfill(
+                $redemption,
+                $request->user(),
+                $data['fulfillment_reference'] ?? null,
+                $data['fulfillment_notes']     ?? null,
+            );
+        } catch (DomainException $e) {
+            return back()->withErrors(['action' => $e->getMessage()]);
+        }
+
+        $label = $isCash ? 'تم تأكيد التحويل البنكي' : 'تم تأكيد حجز الباكج';
+
+        return back()->with('status', "{$label} للطلب #{$redemption->id}.");
+    }
+
+    /**
+     * Reverse a fulfillment (e.g. payment bounced and needs to be reissued).
+     */
+    public function reverseFulfillment(Request $request, RedemptionRequest $redemption): RedirectResponse
+    {
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'min:5', 'max:500'],
+        ]);
+
+        try {
+            $this->service->reverseFulfillment($redemption, $request->user(), $data['reason']);
+        } catch (DomainException $e) {
+            return back()->withErrors(['action' => $e->getMessage()]);
+        }
+
+        return back()->with('status', "تم عكس تنفيذ الطلب #{$redemption->id} — أصبح بحاجة لإعادة التنفيذ.");
+    }
+
+    /**
      * Bulk approve — only cash requests in pending status.
      */
     public function bulkApprove(Request $request): RedirectResponse

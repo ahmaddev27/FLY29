@@ -57,6 +57,8 @@ Route::middleware(['auth', 'admin'])
                 Route::post('/bulk-reject',              'bulkReject')->name('.bulk-reject');
                 Route::post('/{redemption}/approve',     'approve')->name('.approve');
                 Route::post('/{redemption}/reject',      'reject')->name('.reject');
+                Route::post('/{redemption}/fulfill',     'fulfill')->name('.fulfill');
+                Route::post('/{redemption}/reverse-fulfillment', 'reverseFulfillment')->name('.reverse-fulfillment');
             });
 
         // Free packages CRUD

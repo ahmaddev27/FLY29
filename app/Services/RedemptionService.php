@@ -254,4 +254,82 @@ class RedemptionService
             return $request;
         });
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fulfillment — marks an approved request as actually paid/booked
+    |--------------------------------------------------------------------------
+    | Cash:    after the bank transfer was sent → reference = transfer ref
+    | Package: after the trip was booked       → reference = booking number
+    */
+
+    public function fulfill(
+        RedemptionRequest $request,
+        User $by,
+        ?string $reference = null,
+        ?string $notes = null,
+    ): RedemptionRequest {
+        if ($request->status !== 'approved') {
+            throw new DomainException('فقط الطلبات المعتمدة يمكن تنفيذها (fulfilled).');
+        }
+
+        if ($request->fulfilled) {
+            throw new DomainException('هذا الطلب تم تنفيذه مسبقاً.');
+        }
+
+        $request->update([
+            'status'                => 'fulfilled',
+            'fulfilled'             => true,
+            'fulfilled_at'          => now(),
+            'fulfilled_by'          => $by->id,
+            'fulfillment_reference' => $reference,
+            'fulfillment_notes'     => $notes,
+        ]);
+
+        $this->audit->log(
+            action: 'redemption_fulfilled',
+            entityType: RedemptionRequest::class,
+            entityId: (string) $request->id,
+            newValues: [
+                'type'      => $request->type,
+                'reference' => $reference,
+                'notes'     => $notes,
+            ],
+        );
+
+        return $request->fresh();
+    }
+
+    /**
+     * Reverse a fulfillment (e.g. payment failed at the bank and needs reissue).
+     * The redemption goes back to 'approved' and the fulfillment fields are cleared.
+     * Wallet balances are NOT touched — points stay deducted.
+     */
+    public function reverseFulfillment(RedemptionRequest $request, User $by, string $reason): RedemptionRequest
+    {
+        if ($request->status !== 'fulfilled' || ! $request->fulfilled) {
+            throw new DomainException('فقط الطلبات المنفّذة يمكن عكس تنفيذها.');
+        }
+
+        $oldRef = $request->fulfillment_reference;
+
+        $request->update([
+            'status'                => 'approved',
+            'fulfilled'             => false,
+            'fulfilled_at'          => null,
+            'fulfilled_by'          => null,
+            'fulfillment_reference' => null,
+            'fulfillment_notes'     => null,
+        ]);
+
+        $this->audit->log(
+            action: 'redemption_fulfillment_reversed',
+            entityType: RedemptionRequest::class,
+            entityId: (string) $request->id,
+            oldValues: ['fulfillment_reference' => $oldRef],
+            newValues: ['reason' => $reason, 'reversed_by' => $by->id],
+        );
+
+        return $request->fresh();
+    }
 }

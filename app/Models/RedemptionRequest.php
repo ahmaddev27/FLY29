@@ -21,6 +21,9 @@ class RedemptionRequest extends Model
         'processed_at',
         'processed_by',
         'fulfilled_at',
+        'fulfilled_by',
+        'fulfillment_reference',
+        'fulfillment_notes',
     ];
 
     protected function casts(): array
@@ -48,6 +51,11 @@ class RedemptionRequest extends Model
     public function processor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    public function fulfiller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'fulfilled_by');
     }
 
     public function pointsHistory(): HasMany

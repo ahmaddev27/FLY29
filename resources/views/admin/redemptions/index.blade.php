@@ -242,6 +242,80 @@
                                             </x-slot:footer>
                                         </form>
                                     </x-ui.modal>
+                                @elseif($req->status === 'approved' && ! $req->fulfilled)
+                                    {{-- Approved but not yet fulfilled — show "Mark as fulfilled" --}}
+                                    <x-ui.icon-button
+                                        type="button"
+                                        icon="check"
+                                        variant="primary"
+                                        :tooltip="$req->type === 'cash' ? 'تأكيد التحويل البنكي' : 'تأكيد حجز الباكج'"
+                                        :auto-loading="false"
+                                        x-on:click="$dispatch('open-modal', 'fulfill-{{ $req->id }}')"
+                                    />
+
+                                    {{-- Fulfill modal --}}
+                                    <x-ui.modal :name="'fulfill-' . $req->id" :title="'تأكيد تنفيذ الطلب #' . $req->id" size="sm">
+                                        <form method="POST" action="{{ route('admin.redemptions.fulfill', $req) }}">
+                                            @csrf
+                                            <p class="text-sm text-slate-600 mb-3">
+                                                @if($req->type === 'cash')
+                                                    أكّد أنك حوّلت <strong dir="ltr">${{ number_format($req->cash_value_usd, 2) }}</strong> للوكيل
+                                                    <strong>«{{ $req->agent->business_name }}»</strong>.
+                                                @else
+                                                    أكّد أنك حجزت <strong>«{{ $req->package?->name }}»</strong> للوكيل
+                                                    <strong>«{{ $req->agent->business_name }}»</strong>.
+                                                @endif
+                                            </p>
+                                            <x-forms.form-group
+                                                :label="$req->type === 'cash' ? 'رقم مرجع التحويل البنكي' : 'رقم تأكيد الحجز'"
+                                                :for="'fref_' . $req->id"
+                                                :required="$req->type === 'cash'"
+                                            >
+                                                <x-ui.input
+                                                    :id="'fref_' . $req->id"
+                                                    name="fulfillment_reference"
+                                                    dir="ltr"
+                                                    :placeholder="$req->type === 'cash' ? 'مثال: TXN-2026-0512-9988' : 'مثال: BOOKING-2026-001234'"
+                                                />
+                                            </x-forms.form-group>
+
+                                            <x-forms.form-group label="ملاحظات إضافية (اختياري)" :for="'fnotes_' . $req->id" class="mt-3">
+                                                <x-ui.textarea :id="'fnotes_' . $req->id" name="fulfillment_notes" rows="2" placeholder="أي تفاصيل تضاف للسجل..." />
+                                            </x-forms.form-group>
+
+                                            <x-slot:footer>
+                                                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'fulfill-{{ $req->id }}')">إلغاء</x-ui.button>
+                                                <x-ui.button type="submit" variant="cta">تأكيد التنفيذ</x-ui.button>
+                                            </x-slot:footer>
+                                        </form>
+                                    </x-ui.modal>
+                                @elseif($req->status === 'fulfilled')
+                                    {{-- Already fulfilled — show reverse option --}}
+                                    <x-ui.icon-button
+                                        type="button"
+                                        icon="refresh"
+                                        variant="warning"
+                                        tooltip="عكس التنفيذ (فشل التحويل)"
+                                        :auto-loading="false"
+                                        x-on:click="$dispatch('open-modal', 'reverse-{{ $req->id }}')"
+                                    />
+
+                                    <x-ui.modal :name="'reverse-' . $req->id" :title="'عكس تنفيذ الطلب #' . $req->id" size="sm">
+                                        <form method="POST" action="{{ route('admin.redemptions.reverse-fulfillment', $req) }}">
+                                            @csrf
+                                            <p class="text-sm text-slate-600 mb-3">
+                                                سيعود الطلب لحالة "معتمد" وسيظهر مجدداً في قائمة التنفيذ. الرصيد لا يتغيّر.
+                                            </p>
+                                            <x-forms.form-group label="السبب" :for="'rev_reason_' . $req->id" required>
+                                                <x-ui.textarea :id="'rev_reason_' . $req->id" name="reason" rows="3" required placeholder="مثلاً: التحويل البنكي ارتد للحساب — يجب إعادته." />
+                                            </x-forms.form-group>
+
+                                            <x-slot:footer>
+                                                <x-ui.button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reverse-{{ $req->id }}')">إلغاء</x-ui.button>
+                                                <x-ui.button type="submit" variant="warning">عكس التنفيذ</x-ui.button>
+                                            </x-slot:footer>
+                                        </form>
+                                    </x-ui.modal>
                                 @else
                                     <span class="text-xs text-slate-400">
                                         @if($req->processor)
@@ -252,6 +326,13 @@
                                     </span>
                                 @endif
                             </div>
+
+                            {{-- Fulfillment reference (always shown if present) --}}
+                            @if($req->fulfillment_reference)
+                                <div class="text-xs text-slate-400 mt-1 font-latin text-center">
+                                    📋 {{ $req->fulfillment_reference }}
+                                </div>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

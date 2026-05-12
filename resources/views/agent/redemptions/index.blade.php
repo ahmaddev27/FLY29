@@ -98,7 +98,17 @@
                                     @endif
                                     @break
                                 @case('cancelled') <x-ui.badge variant="neutral" :dot="true">ملغي</x-ui.badge> @break
-                                @case('fulfilled') <x-ui.badge variant="info" :dot="true">تمّ التنفيذ</x-ui.badge> @break
+                                @case('fulfilled')
+                                    <x-ui.badge variant="info" :dot="true">تمّ التنفيذ</x-ui.badge>
+                                    @if($req->fulfillment_reference)
+                                        <div class="text-xs text-slate-500 mt-1 font-latin">
+                                            مرجع: {{ $req->fulfillment_reference }}
+                                        </div>
+                                    @endif
+                                    @if($req->fulfilled_at)
+                                        <div class="text-xs text-slate-400 mt-0.5">{{ $req->fulfilled_at->diffForHumans() }}</div>
+                                    @endif
+                                    @break
                             @endswitch
                         </td>
                         <td class="px-4 py-3">
