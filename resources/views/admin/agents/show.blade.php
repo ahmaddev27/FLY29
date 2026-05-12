@@ -78,12 +78,27 @@
                         </form>
                     @endif
 
-                    <form method="POST" action="{{ route('admin.agents.destroy', $agent) }}"
-                          onsubmit="return confirm('حذف الوكيل «{{ $agent->business_name }}»؟ (محفوظ لـ 90 يوم في الأرشيف)');">
-                        @csrf
-                        @method('DELETE')
-                        <x-ui.button type="submit" variant="danger" :full="true" :auto-loading="false">حذف الوكيل</x-ui.button>
-                    </form>
+                    <x-ui.button
+                        type="button"
+                        variant="danger"
+                        :full="true"
+                        :auto-loading="false"
+                        x-on:click="$dispatch('open-modal', 'delete-agent-{{ $agent->id }}')"
+                    >
+                        حذف الوكيل
+                    </x-ui.button>
+
+                    <x-ui.confirm-dialog
+                        :name="'delete-agent-' . $agent->id"
+                        title="حذف الوكيل؟"
+                        :message="'سيتم حذف «' . $agent->business_name . '» ونقله إلى الأرشيف لمدة 90 يوماً قبل الحذف النهائي. لن يستطيع الدخول، ولكن بياناته ومحفظتيه ستبقى محفوظة.'"
+                        :action="route('admin.agents.destroy', $agent)"
+                        method="DELETE"
+                        confirm-label="نعم، احذف الوكيل"
+                        cancel-label="إلغاء"
+                        variant="danger"
+                        icon="trash"
+                    />
                 </div>
             </div>
         </div>

@@ -112,14 +112,27 @@
                                     />
                                 </form>
 
-                                <form method="POST" action="{{ route('admin.packages.destroy', $pkg) }}"
-                                      onsubmit="return confirm('حذف الباكج «{{ $pkg->name }}»؟ لا يمكن التراجع.');"
-                                      class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <x-ui.icon-button type="submit" icon="trash" variant="danger" tooltip="حذف" :auto-loading="false" />
-                                </form>
+                                <x-ui.icon-button
+                                    type="button"
+                                    icon="trash"
+                                    variant="danger"
+                                    tooltip="حذف"
+                                    :auto-loading="false"
+                                    x-on:click="$dispatch('open-modal', 'delete-package-{{ $pkg->id }}')"
+                                />
                             </div>
+
+                            <x-ui.confirm-dialog
+                                :name="'delete-package-' . $pkg->id"
+                                title="حذف الباكج؟"
+                                :message="'سيتم حذف الباكج «' . $pkg->name . '» نهائياً. هذا الإجراء لا يمكن التراجع عنه.'"
+                                :action="route('admin.packages.destroy', $pkg)"
+                                method="DELETE"
+                                confirm-label="نعم، احذف الباكج"
+                                cancel-label="إلغاء"
+                                variant="danger"
+                                icon="trash"
+                            />
                         </td>
                     </tr>
                 @endforeach
