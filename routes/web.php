@@ -9,7 +9,17 @@ use Illuminate\Support\Facades\Route;
 | Public + global
 |--------------------------------------------------------------------------
 */
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', function () {
+    if ($user = auth()->user()) {
+        return redirect(match ($user->role) {
+            'super_admin', 'admin' => '/admin/dashboard',
+            'account_manager'      => '/manager/dashboard',
+            default                => '/agent/dashboard',
+        });
+    }
+
+    return redirect()->route('login');
+});
 
 // Design system showcase (dev / internal)
 Route::view('/design-system', 'design-system')->name('design-system');
