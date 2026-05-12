@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\RedemptionController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -65,8 +66,11 @@ Route::middleware(['auth', 'admin'])
                 Route::delete('/{package}',           'destroy')->name('.destroy');
             });
 
+        // Settings
+        Route::get('/settings',    [SettingsController::class, 'index'])->name('settings');
+        Route::patch('/settings',  [SettingsController::class, 'update'])->name('settings.update');
+
         // Placeholders (real pages to come)
         Route::view('/reports',  'placeholders.admin')->name('reports');
-        Route::view('/settings', 'placeholders.admin')->name('settings');
         Route::view('/audit',    'placeholders.admin')->name('audit');
     });
